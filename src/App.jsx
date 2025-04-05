@@ -18,6 +18,8 @@ import ReactDOM from "react-dom";
 import Register from "./Register.jsx";
 import CookieConsent from "./CookieConsent.jsx";
 import NotificationComponent from "./Notification.jsx";
+import Registre_author from "./Registre_author.jsx";
+import Add_article from "./Add_article.jsx";
 import { Route, Routes } from "react-router";
 
 import { BrowserRouter } from "react-router-dom";
@@ -41,6 +43,9 @@ function App() {
           <Route path="/Sports" element={<Sports />} />
           <Route path="/CommentForm" element={<CommentForm />} />
           <Route path="/Register" element={<Register />} />
+          <Route path="/Registre_author" element={<Registre_author />} />
+          <Route path="/Add_article" element={<Add_article />} />
+
         </Routes>
         <CookieConsent
           location="bottom"
