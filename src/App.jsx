@@ -11,9 +11,10 @@ import Media from "./Media.jsx";
 import Culture from "./Culture.jsx";
 import International from "./International.jsx";
 import Economy from "./Economy.jsx";
-import CommentForm from "./CommentForm.jsx";
+import Login from "./Login.jsx";
 import Test from "./Test.jsx";
 import Article from "./Article.jsx";
+import ForgotPassword from "./ForgotPassword.jsx";
 import ReactDOM from "react-dom";
 import Register from "./Register.jsx";
 import CookieConsent from "./CookieConsent.jsx";
@@ -25,10 +26,11 @@ function App() {
   return (
     <>
       <BrowserRouter>
-      <NotificationComponent/>
+        <NotificationComponent />
         <Header />
 
         <Routes>
+          <Route path="/ForgotPassword" element={<ForgotPassword />} />
           <Route path="/" element={<Section />} />
           <Route path="/Article" element={<Article />} />
           <Route path="/Politics" element={<Politics />} />
@@ -39,7 +41,7 @@ function App() {
           <Route path="/Culture" element={<Culture />} />
           <Route path="/Economy" element={<Economy />} />
           <Route path="/Sports" element={<Sports />} />
-          <Route path="/CommentForm" element={<CommentForm />} />
+          <Route path="/Login" element={<Login />} />
           <Route path="/Register" element={<Register />} />
         </Routes>
         <CookieConsent

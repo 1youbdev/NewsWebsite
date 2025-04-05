@@ -221,7 +221,7 @@ export default function Article() {
                 }}
               ></textarea>
               <br />
-              
+
               <Link
                 style={{
                   textDecoration: "none",
@@ -229,7 +229,7 @@ export default function Article() {
                   fontSize: "1.1em",
                   marginLeft: "510px",
                 }}
-                to="/CommentForm"
+                to="/login"
               >
                 Add a comment
               </Link>

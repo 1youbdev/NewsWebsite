@@ -211,164 +211,169 @@ export default function Section() {
             <div
               style={{ display: "flex", flexDirection: "column", gap: "20px" }}
             >
-              <div className="TrendingArticles">
+              <div className="multiplearticles">
                 <p
+                  className="textColor"
                   style={{
                     fontFamily: "Oswald",
                     fontSize: "1.8em",
-                    fontWeight: "100",
+                    fontWeight: "400",
                     margin: "0",
                     letterSpacing: "1px",
-                    color: "white",
+                    marginBottom: "20px",
                   }}
                 >
-                  Trending Articles
+                  Latest Articles
                 </p>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "10px" }}
                 >
-                  <span>
-                    <img
-                      style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)" }}
-                      src="https://picsum.photos/id/51/140/70"
-                    />
-                  </span>
-                  <span style={{ display: "flex", flexDirection: "column" }}>
-                    <p
-                      style={{
-                        color: "white",
-                        fontFamily: "Oswald",
-                        fontSize: "1.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "300",
-                      }}
-                    >
-                      Title
-                    </p>
-                    <p
-                      style={{
-                        color: "gray",
-                        fontFamily: "Oswald",
-                        fontSize: "0.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "100",
-                      }}
-                    >
-                      21minutes ago
-                    </p>
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">05:47</p>Réformes
+                    gouvernementales : quel impact sur les prochaines élections
+                    ?
                   </span>
                 </div>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "10px" }}
                 >
-                  <span>
-                    <img
-                      style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)" }}
-                      src="https://picsum.photos/id/61/140/70"
-                    />
-                  </span>
-                  <span style={{ display: "flex", flexDirection: "column" }}>
-                    <p
-                      style={{
-                        color: "white",
-                        fontFamily: "Oswald",
-                        fontSize: "1.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "300",
-                      }}
-                    >
-                      Title
-                    </p>
-                    <p
-                      style={{
-                        color: "gray",
-                        fontFamily: "Oswald",
-                        fontSize: "0.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "100",
-                      }}
-                    >
-                      5minutes ago
-                    </p>
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    {" "}
+                    <p className="colorofnavbar">06:01</p>
+                    Inflation et pouvoir d'achat : les défis de l'année à venir.
                   </span>
                 </div>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "10px" }}
                 >
-                  <span>
-                    <img
-                      style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)" }}
-                      src="https://picsum.photos/id/13/140/70"
-                    />
-                  </span>
-                  <span style={{ display: "flex", flexDirection: "column" }}>
-                    <p
-                      style={{
-                        color: "white",
-                        fontFamily: "Oswald",
-                        fontSize: "1.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "300",
-                      }}
-                    >
-                      Title
-                    </p>
-                    <p
-                      style={{
-                        color: "gray",
-                        fontFamily: "Oswald",
-                        fontSize: "0.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "100",
-                      }}
-                    >
-                      2 hours ago
-                    </p>
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">07:31</p>
+                    Télétravail et bien-être : une révolution durable ?
                   </span>
                 </div>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "10px" }}
                 >
-                  <span>
-                    <img
-                      style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)" }}
-                      src="https://picsum.photos/id/81/140/70"
-                    />
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">08:31</p>
+                    Les Jeux Olympiques 2024 : tout ce qu’il faut savoir.
                   </span>
-                  <span style={{ display: "flex", flexDirection: "column" }}>
-                    <p
-                      style={{
-                        color: "white",
-                        fontFamily: "Oswald",
-                        fontSize: "1.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "300",
-                      }}
-                    >
-                      Title
-                    </p>
-                    <p
-                      style={{
-                        color: "gray",
-                        fontFamily: "Oswald",
-                        fontSize: "0.5em",
-                        letterSpacing: "2px",
-                        margin: "0",
-                        fontWeight: "100",
-                      }}
-                    >
-                      3 hours ago
-                    </p>
+                </div>
+                <div
+                  style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+                >
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">09:13</p>
+                    Les nouvelles dynamiques économiques au Moyen-Orient.
+                  </span>
+                </div>
+                <div
+                  style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+                >
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">17:43</p>
+                    Crises géopolitiques : quels enjeux pour l’Europe ?.
+                  </span>
+                </div>
+                <div
+                  style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+                >
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">18:32</p>
+                    L’essor des plateformes de streaming : menace ou opportunité
+                    pour le cinéma ?
+                  </span>
+                </div>
+                <div
+                  style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+                >
+                  <span
+                    className="textColor"
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "0.85em",
+                      fontWeight: "400",
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="colorofnavbar">23:11</p>
+                    Cryptomonnaies et régulation : quel avenir pour le Bitcoin ?
                   </span>
                 </div>
               </div>
+
               <div className="Register">
                 <p
                   style={{

@@ -1,5 +1,5 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 function CommentForm() {
   return (
     <center>
@@ -38,7 +38,7 @@ function CommentForm() {
             </span>
             <br />
             <input type="text" className="formForCommentInput" />
-            <br /> 
+            <br />
             <br />
             <span
               // className="commentFormHeading"
@@ -53,8 +53,19 @@ function CommentForm() {
             >
               Password
             </span>
-            <br />  
-            <input type="email" className="formForCommentInput" />
+            <br />
+            <input type="email" className="formForCommentInput" /> <br /> <br />
+            <button
+              style={{
+                borderRadius: "10px",
+                padding: "8px",
+                border: "none",
+                width: "80px",
+                cursor: "pointer",
+              }}
+            >
+              Log in
+            </button>
           </form>
           <br />
           <div
@@ -65,7 +76,8 @@ function CommentForm() {
               margin: "0",
             }}
           >
-            <a
+            <Link
+              to="/ForgotPassword"
               href="#"
               style={{
                 textDecoration: "none",
@@ -75,7 +87,7 @@ function CommentForm() {
               className="commentFormHeading"
             >
               Forgotten password?
-            </a>
+            </Link>
             <Link
               to="/Register"
               style={{ textDecoration: "none", textAlign: "left" }}

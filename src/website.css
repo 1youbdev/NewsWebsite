@@ -330,6 +330,9 @@ div {
   width: fit-content;
   max-width: 100vw;
 }
+.colorofnavbar {
+  color: var(--search-input);
+}
 .multiplearticles {
   border-radius: 20px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6);
@@ -421,6 +424,6 @@ div {
   background: var(--nav-links-after);
   color: #fff;
 }
-.notificationButton{
+.notificationButton {
   background-color: var(--comment-form-input);
 }

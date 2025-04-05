@@ -114,7 +114,7 @@ export default function Register() {
             <br />
             <Link
               style={{ textDecoration: "none", color: "white" }}
-              to="/CommentForm"
+              to="/login"
             >
               Already have an account?
             </Link>
