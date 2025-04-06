@@ -22,8 +22,8 @@ import NotificationComponent from "./Notification.jsx";
 import Registre_author from "./Registre_author.jsx";
 import Add_article from "./Add_article.jsx";
 import { Route, Routes } from "react-router";
-
 import { BrowserRouter } from "react-router-dom";
+import SingupBack from "./SingupBack.jsx";
 function App() {
   return (
     <>
@@ -47,6 +47,7 @@ function App() {
           <Route path="/Register" element={<Register />} />
           <Route path="/Registre_author" element={<Registre_author />} />
           <Route path="/Add_article" element={<Add_article />} />
+          <Route path="/SingupBack" element={<SingupBack />} />
 
         </Routes>
         <CookieConsent

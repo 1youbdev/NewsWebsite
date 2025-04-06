@@ -7,6 +7,7 @@ import darkmode from "./night-mode.png";
 import lightmode from "./contrast.png";
 import darksearch from "./searchlight.png";
 import lightsearch from "./searchdark.png";
+import { AiFillHome } from "react-icons/ai";
 
 export default function Header() {
   const [theme, setTheme] = useState("dark");
@@ -29,13 +30,13 @@ export default function Header() {
       <header>
         <div className="navbar">
           <div>
-            <NavLink to="/">
+            
               <img
                 src={theme === "dark" ? logodark : logolight}
                 className="Navbarlogo"
                 alt="Logo"
               />
-            </NavLink>
+            
           </div>
           <div>
             <ul
@@ -48,6 +49,12 @@ export default function Header() {
               }}
               className="navbar"
             >
+              <li>
+                <NavLink to="/" className="linkStyle flex items-center gap-2 text-white">
+                  <AiFillHome size={20} color="white" />
+                  Home
+                </NavLink>
+              </li>            
               <li>
                 <NavLink to="/Politics" className="linkStyle">
                   Politics

@@ -6,18 +6,19 @@ export default function Add_article() {
     title: '',
     category: '',
     text: '',
-    pdf: null  // Add pdf to the formData state
+    pdf: null,
+    image: null // ✅ Added image
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitted, setSubmitted] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, type, files, value } = e.target;
     if (type === 'file') {
       setFormData({
         ...formData,
-        [name]: files[0]  // Handle file input
+        [name]: files[0]
       });
     } else {
       setFormData({
@@ -41,6 +42,9 @@ export default function Add_article() {
     }
     if (formData.pdf && formData.pdf.type !== 'application/pdf') {
       newErrors.pdf = 'Only PDF files are allowed';
+    }
+    if (formData.image && !formData.image.type.startsWith('image/')) {
+      newErrors.image = 'Only image files are allowed';
     }
 
     setErrors(newErrors);
@@ -84,6 +88,7 @@ export default function Add_article() {
             flexDirection: "column",
             gap: "10px",
             marginTop: "50px",
+            width: "50%",
           }}
         >
           <p
@@ -94,46 +99,46 @@ export default function Add_article() {
           </p>
         </div>
         <div>
-          <form onSubmit={handleSubmit} className="formForComment" >
+          <form onSubmit={handleSubmit} className="formForComment">
             {/* Title */}
             <label className="commentFormHeading"
-                          style={{
-                            position: "relative",
-                            fontSize: "16px",
-                            textAlign: "left",
-                            display: "block",
-                            width: "100%",
-                            color: "white",
-                          }}
-                          >Title</label><br />
+              style={{
+                position: "relative",
+                fontSize: "16px",
+                textAlign: "left",
+                display: "block",
+                width: "100%",
+                color: "white",
+              }}
+            >Title</label><br />
             <input
               type="text"
               className="formForCommentInput"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              style={{width:"93%"}}
+              style={{ width: "93%" }}
             />
             {errors.title && <span style={{ color: "red", fontSize: "12px" }}>{errors.title}</span>}
             <br /><br />
 
             {/* Category */}
             <label className="commentFormHeading"
-                          style={{
-                            position: "relative",
-                            fontSize: "16px",
-                            textAlign: "left",
-                            display: "block",
-                            width: "100%",
-                            color: "white",
-                          }}
-                          >Category</label><br />
+              style={{
+                position: "relative",
+                fontSize: "16px",
+                textAlign: "left",
+                display: "block",
+                width: "100%",
+                color: "white",
+              }}
+            >Category</label><br />
             <select
               className="formForCommentInput"
               name="category"
               value={formData.category}
               onChange={handleChange}
-              style={{width:"100%"}}
+              style={{ width: "100%" }}
             >
               <option value="">Select a category</option>
               <option value="politics">Politics</option>
@@ -141,20 +146,23 @@ export default function Add_article() {
               <option value="economy">Economy</option>
               <option value="mena">MENA</option>
               <option value="international">International</option>
+              <option value="media">Media</option>
+              <option value="culture">Culture</option>
+              <option value="sports">Sports</option>
             </select>
             {errors.category && <span style={{ color: "red", fontSize: "12px" }}>{errors.category}</span>}
             <br /><br />
 
             {/* Text */}
             <label className="commentFormHeading"
-                          style={{
-                            position: "relative",
-                            fontSize: "16px",
-                            textAlign: "left",
-                            display: "block",
-                            width: "100%",
-                            color: "white",
-                          }}
+              style={{
+                position: "relative",
+                fontSize: "16px",
+                textAlign: "left",
+                display: "block",
+                width: "100%",
+                color: "white",
+              }}
             >Text</label><br />
             <textarea
               className="formForCommentInput"
@@ -162,21 +170,22 @@ export default function Add_article() {
               value={formData.text}
               onChange={handleChange}
               rows="4"
+              style={{ width: "93%" }}
             />
             {errors.text && <span style={{ color: "red", fontSize: "12px" }}>{errors.text}</span>}
             <br /><br />
 
             {/* PDF File Upload */}
             <label className="commentFormHeading"
-                          style={{
-                            position: "relative",
-                            fontSize: "16px",
-                            textAlign: "left",
-                            display: "block",
-                            width: "100%",
-                            color: "white",
-                          }}
-                          >Upload PDF</label><br />
+              style={{
+                position: "relative",
+                fontSize: "16px",
+                textAlign: "left",
+                display: "block",
+                width: "100%",
+                color: "white",
+              }}
+            >Upload PDF</label><br />
             <input
               type="file"
               className="formForCommentInput"
@@ -185,6 +194,27 @@ export default function Add_article() {
               style={{ width: "93%" }}
             />
             {errors.pdf && <span style={{ color: "red", fontSize: "12px" }}>{errors.pdf}</span>}
+            <br /><br />
+
+            {/* Image Upload */}
+            <label className="commentFormHeading"
+              style={{
+                position: "relative",
+                fontSize: "16px",
+                textAlign: "left",
+                display: "block",
+                width: "100%",
+                color: "white",
+              }}
+            >Upload Image</label><br />
+            <input
+              type="file"
+              className="formForCommentInput"
+              name="image"
+              onChange={handleChange}
+              style={{ width: "93%" }}
+            />
+            {errors.image && <span style={{ color: "red", fontSize: "12px" }}>{errors.image}</span>}
             <br /><br />
 
             <button

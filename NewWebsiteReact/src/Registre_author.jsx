@@ -88,26 +88,32 @@ export default function Registre_author  (){
             textAlign: "left",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            gap: "20px",
             marginTop: "50px",
             
           }}
         >
           <p
-            style={{ margin: "0", fontSize: "64px", lineHeight: "1" }}
+            style={{ margin: "0", fontSize: "70px", lineHeight: "1" }}
             className="commentFormHeading"
           >
             Join 
           </p>
           <br />
           <p
-            style={{ margin: "0", fontSize: "36px", lineHeight: "0.1" }}
+            style={{ margin: "0", fontSize: "50px", lineHeight: "1" }}
             className="commentFormHeading"
           >
-            our community today!
+            our community 
+          </p>
+          <p
+            style={{ margin: "0", fontSize: "50px", lineHeight: "1" }}
+            className="commentFormHeading"
+          >
+             Today!
           </p>
         </div>
-        <div>
+        <div style={{ width: "50%" ,position:"relative" , marginLeft: "40px"}}>
           <form onSubmit={handleSubmit} className="formForComment">
             {/* Full Name */}
             <label className="commentFormHeading"
@@ -126,6 +132,9 @@ export default function Registre_author  (){
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
+              style={{ width: "90%" }}
+
+              
             />
             {errors.fullName && <span style={{ color: "red", fontSize: "12px" }}>{errors.fullName}</span>}
             <br /><br />
@@ -139,6 +148,7 @@ export default function Registre_author  (){
                                         display: "block",
                                         width: "100%",
                                         color: "white",
+                                        
                                       }}
             >Email</label><br />
             <input
@@ -147,6 +157,8 @@ export default function Registre_author  (){
               name="email"
               value={formData.email}
               onChange={handleChange}
+              style={{ width: "90%" }}
+              
             />
             {errors.email && <span style={{ color: "red", fontSize: "12px" }}>{errors.email}</span>}
             <br /><br />
@@ -169,6 +181,7 @@ export default function Registre_author  (){
               name="password"
               value={formData.password}
               onChange={handleChange}
+              style={{ width: "90%" }}
             />
             {errors.password && <span style={{ color: "red", fontSize: "12px" }}>{errors.password}</span>}
             <br /><br />
@@ -191,6 +204,7 @@ export default function Registre_author  (){
               name="rePassword"
               value={formData.rePassword}
               onChange={handleChange}
+              style={{ width: "90%" }}
             />
             {errors.rePassword && <span style={{ color: "red", fontSize: "12px" }}>{errors.rePassword}</span>}
             <br /><br />
@@ -212,6 +226,7 @@ export default function Registre_author  (){
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
+              style={{ width: "90%" }}
             />
             {errors.phoneNumber && <span style={{ color: "red", fontSize: "12px" }}>{errors.phoneNumber}</span>}
             <br /><br />
@@ -233,6 +248,7 @@ export default function Registre_author  (){
               value={formData.description}
               onChange={handleChange}
               rows="4"
+              style={{ width: "90%" }}
             />
             <br /><br />
             <Link
@@ -257,9 +273,9 @@ export default function Registre_author  (){
             </button>
             </Link>
             <br />
-
+              <Link to="/SingupBack" style={{color: "white"}}>
               Already have an account?
-            
+              </Link>
           </form>
         </div>
       </div>
