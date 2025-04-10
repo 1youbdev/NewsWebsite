@@ -64,7 +64,7 @@ export default function Registre_author  (){
   if (isSubmitted) {
     return (
       <div style={{ textAlign: "center", marginTop: "50px", color: "white" }}>
-        <h1>Registration successful!</h1>
+        <h1>Registration successful !!</h1>
         <p>
           You can now <Link to="/login" style={{ color: "#00f" }}>login</Link>.
         </p>
@@ -129,7 +129,7 @@ export default function Registre_author  (){
             <input
               type="text"
               className="formForCommentInput"
-              name="fullName"
+              name="name"
               value={formData.fullName}
               onChange={handleChange}
               style={{ width: "90%" }}
