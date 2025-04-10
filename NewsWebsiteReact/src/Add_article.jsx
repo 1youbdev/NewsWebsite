@@ -95,7 +95,7 @@ export default function Add_article() {
             style={{ margin: "0", fontSize: "64px", lineHeight: "1" }}
             className="commentFormHeading"
           >
-            We Value Transparency and Credibility
+            We Value Transparency and Credibility . 
           </p>
         </div>
         <div>
@@ -117,6 +117,7 @@ export default function Add_article() {
               name="title"
               value={formData.title}
               onChange={handleChange}
+              placeholder="Title"
               style={{ width: "93%" }}
             />
             {errors.title && <span style={{ color: "red", fontSize: "12px" }}>{errors.title}</span>}
@@ -135,7 +136,7 @@ export default function Add_article() {
             >Category</label><br />
             <select
               className="formForCommentInput"
-              name="category"
+              name="categories"
               value={formData.category}
               onChange={handleChange}
               style={{ width: "100%" }}
@@ -166,9 +167,10 @@ export default function Add_article() {
             >Text</label><br />
             <textarea
               className="formForCommentInput"
-              name="text"
+              name="content"
               value={formData.text}
               onChange={handleChange}
+              placeholder="Write you document here"
               rows="4"
               style={{ width: "93%" }}
             />

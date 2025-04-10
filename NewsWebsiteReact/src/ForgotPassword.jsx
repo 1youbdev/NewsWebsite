@@ -22,6 +22,7 @@ export default function ForgotPassword() {
           <input
             type="text"
             className="formForCommentInput"
+            name="email"
             style={{ width: "280px" }}
           />
           <br />
