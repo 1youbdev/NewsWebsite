@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->unique();
+        Schema::table('comments', function (Blueprint $table) {
             $table->foreignId('idUser')->constrained('users')->OnDelete('cascade');
-            $table->timestamps();
+            $table->foreignId('idArticle')->constrained('articles')->onDelete('cascade');
+            $table->string('text');
         });
     }
 
@@ -24,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::table('comments', function (Blueprint $table) {
+            //
+        });
     }
 };
