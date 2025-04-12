@@ -1,37 +1,37 @@
 <?php
 
+namespace App\Http\Controllers;
+
+use App\Models\Article;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Article;
 
-/*
-|--------------------------------------------------------------------------
-| Article API Routes
-|--------------------------------------------------------------------------
-|
-| All Article related API endpoints in one place
-|
-*/
-
-Route::prefix('articles')->group(function () {
-    // Get all articles
-    Route::get('/', function () {
+class ArticleController extends Controller
+{
+    /**
+     * Display a listing of the articles.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
         $articles = Article::with(['user', 'category'])->get();
         
         return response()->json([
             'success' => true,
             'data' => $articles
         ]);
-    });
+    }
 
-    // Create new article
-    Route::post('/', function (Request $request) {
+    /**
+     * Store a newly created article in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'idUser' => 'required|exists:users,id',
             'idCategory' => 'required|exists:categories,id',
@@ -61,10 +61,16 @@ Route::prefix('articles')->group(function () {
             'data' => $article,
             'message' => 'Article created successfully'
         ], 201);
-    });
+    }
 
-    // Get single article
-    Route::get('/{id}', function ($id) {
+    /**
+     * Display the specified article.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
         $article = Article::with(['user', 'category'])->find($id);
 
         if (!$article) {
@@ -78,10 +84,17 @@ Route::prefix('articles')->group(function () {
             'success' => true,
             'data' => $article
         ]);
-    });
+    }
 
-    // Update article
-    Route::put('/{id}', function (Request $request, $id) {
+    /**
+     * Update the specified article in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
         $article = Article::find($id);
 
         if (!$article) {
@@ -126,10 +139,16 @@ Route::prefix('articles')->group(function () {
             'data' => $article,
             'message' => 'Article updated successfully'
         ]);
-    });
+    }
 
-    // Delete article
-    Route::delete('/{id}', function ($id) {
+    /**
+     * Remove the specified article from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
         $article = Article::find($id);
 
         if (!$article) {
@@ -151,5 +170,5 @@ Route::prefix('articles')->group(function () {
             'success' => true,
             'message' => 'Article deleted successfully'
         ]);
-    });
-});
+    }
+}
