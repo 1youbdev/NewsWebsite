@@ -48,8 +48,15 @@ export default function Header() {
               className="navbar"
             >
               <li>
-                <NavLink to="/" className="flex items-center gap-2 text-white">
-                  <AiFillHome size={20} style={{marginTop:"2px"}} color="white" />
+                <NavLink
+                  to="/Home"
+                  className="flex items-center gap-2 text-white"
+                >
+                  <AiFillHome
+                    size={30}
+                    style={{ marginTop: "0.6px" }}
+                    color="white"
+                  />
                 </NavLink>
               </li>
               <li>

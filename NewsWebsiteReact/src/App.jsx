@@ -13,6 +13,7 @@ import International from "./International.jsx";
 import Economy from "./Economy.jsx";
 import Login from "./Login.jsx";
 import Test from "./Test.jsx";
+import axios from "axios";
 import Article from "./Article.jsx";
 import ForgotPassword from "./ForgotPassword.jsx";
 import ReactDOM from "react-dom";
@@ -24,6 +25,8 @@ import Add_article from "./Add_article.jsx";
 import { Route, Routes } from "react-router";
 import { BrowserRouter } from "react-router-dom";
 import SingupBack from "./SingupBack.jsx";
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = "http://127.0.0.1:8000";
 function App() {
   return (
     <>
@@ -34,6 +37,7 @@ function App() {
         <Routes>
           <Route path="/ForgotPassword" element={<ForgotPassword />} />
           <Route path="/" element={<Section />} />
+          <Route path="/Home" element={<Section />} />
           <Route path="/Article" element={<Article />} />
           <Route path="/Politics" element={<Politics />} />
           <Route path="/Society" element={<Society />} />
@@ -48,7 +52,6 @@ function App() {
           <Route path="/Registre_author" element={<Registre_author />} />
           <Route path="/Add_article" element={<Add_article />} />
           <Route path="/SingupBack" element={<SingupBack />} />
-
         </Routes>
         <CookieConsent
           location="bottom"

@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->foreignId('idUser')->references('id')->on('users')->OnDelete('cascade');
-            $table->foreignId('idArticle')->constrained('articles')->onDelete('cascade');
-            $table->string('text');
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('subscribed')->default(false);
         });
     }
 
@@ -23,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

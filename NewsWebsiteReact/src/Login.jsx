@@ -1,6 +1,51 @@
-import React from "react";
-import { Link } from "react-router-dom";
-function CommentForm() {
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      // First, get the CSRF cookie
+      await axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
+
+      // Then, make the login request
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/login",
+        {
+          email: email,
+          password: password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      localStorage.setItem("token", response.data.token);
+
+      // Optional: you can store user info if the backend returns it
+      // localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      // Navigate based on role (assuming role is included in the response)
+      if (response.data.role === "admin") {
+        navigate("/Home");
+      } else {
+        navigate("/Article");
+      }
+    } catch (err) {
+      setError("Email ou mot de passe incorrect");
+      console.error(err);
+    }
+  };
+
   return (
     <center>
       <div
@@ -22,7 +67,19 @@ function CommentForm() {
           </h1>
         </div>
         <div>
-          <form action="" className="formForComment">
+          <form action="" className="formForComment" onSubmit={handleLogin}>
+            {error && (
+              <div
+                style={{
+                  color: "red",
+                  marginBottom: "10px",
+                  fontSize: "14px",
+                  textAlign: "left",
+                }}
+              >
+                {error}
+              </div>
+            )}
             <span
               className="commentFormHeading"
               style={{
@@ -34,14 +91,21 @@ function CommentForm() {
                 color: "white",
               }}
             >
-              Email/Username
+              Email
             </span>
             <br />
-            <input type="text" className="formForCommentInput" />
+            <input
+              type="text"
+              placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
+              className="formForCommentInput"
+              style={{ width: "fit-content" }}
+              name="email"
+              value={email}
+            />
             <br />
             <br />
             <span
-              // className="commentFormHeading"
               style={{
                 position: "relative",
                 fontSize: "16px",
@@ -54,7 +118,15 @@ function CommentForm() {
               Password
             </span>
             <br />
-            <input type="email" className="formForCommentInput" /> <br /> <br />
+            <input
+              type="password"
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
+              className="formForCommentInput"
+              name="password"
+              value={password}
+            />{" "}
+            <br /> <br />
             <button
               style={{
                 borderRadius: "10px",
@@ -63,6 +135,7 @@ function CommentForm() {
                 width: "80px",
                 cursor: "pointer",
               }}
+              type="submit"
             >
               Log in
             </button>
@@ -78,7 +151,6 @@ function CommentForm() {
           >
             <Link
               to="/ForgotPassword"
-              href="#"
               style={{
                 textDecoration: "none",
                 textAlign: "left",
@@ -102,4 +174,4 @@ function CommentForm() {
   );
 }
 
-export default CommentForm;
+export default Login;

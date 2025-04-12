@@ -374,7 +374,14 @@ export default function Section() {
                 </div>
               </div>
 
-              <div className="Register">
+              <div
+                className="newsletterDiv"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                }}
+              >
                 <p
                   style={{
                     fontFamily: "Oswald",
@@ -383,6 +390,7 @@ export default function Section() {
                     margin: "0",
                     letterSpacing: "1px",
                     color: "white",
+                    height: "fit-content",
                   }}
                 >
                   Newsletter
@@ -399,12 +407,14 @@ export default function Section() {
                 >
                   Stay informed
                 </p>
-                <input
-                  type="email"
-                  placeholder="Put your Email here..."
-                  className="RegisterInput"
-                />
-                <button className="RegisterButton">Subscribe</button>
+                <Link to="/login">
+                  <button
+                    className="RegisterButton"
+                    style={{ width: "250px", height: "40px" }}
+                  >
+                    Subscribe
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

@@ -21,8 +21,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'phoneNumber'
     ];
 
+    public function comments(){
+        return $this->hasMany(Comment::class,'idUser');
+    }
+    public function articles(){
+        return $this->hasMany(Article::class,'idUser');
+    }
+    public function subscription(){
+        return $this->hasOne(Subscription::class,'idUser');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

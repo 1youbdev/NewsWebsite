@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('idUser')->constrained('users')->OnDelete('cascade');
-            $table->foreignId('idCategory')->constrained('categories')->OnDelete('cascade');
             $table->string('title');
             $table->text('content');
             $table->string('image')->nullable();

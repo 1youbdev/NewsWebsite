@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->string('email')->unique();
-            $table->foreignId('idUser')->constrained('users')->OnDelete('cascade');
+            $table->foreignId('idUser')->references('id')->on('users')->OnDelete('cascade');
             $table->timestamps();
         });
     }

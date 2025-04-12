@@ -330,6 +330,12 @@ div {
   width: fit-content;
   max-width: 100vw;
 }
+.newsletterDiv {
+  background-color: var(--register);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6);
+  border-radius: 30px;
+  padding: 30px;
+}
 .colorofnavbar {
   color: var(--search-input);
 }
