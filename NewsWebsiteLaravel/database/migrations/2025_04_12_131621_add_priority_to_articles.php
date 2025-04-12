@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            //
+            Schema::table('articles', function (Blueprint $table) {
+                $table->integer('priority')->default(0)->after('idCategory');
+            });
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
-            $table->integer('priority')->default(0);
-        });
+       
     }
 };
