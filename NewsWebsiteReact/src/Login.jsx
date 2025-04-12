@@ -18,7 +18,7 @@ function Login() {
 
       // Then, make the login request
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/login",
+        "http://127.0.0.1:8000/login",
         {
           email: email,
           password: password,
