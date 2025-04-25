@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->string('fichier_pdf')->nullable()->after('image');
+            $table->string('file')->nullable()->after('image');
         });
     }
 
     public function down(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->dropColumn('fichier_pdf');
+            $table->dropColumn('file');
         });
     }
 };
