@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import "./website.css";
 import logodark from "./logodark.png";
 import logolight from "./logolight.png";
@@ -8,8 +8,10 @@ import lightmode from "./contrast.png";
 import darksearch from "./searchlight.png";
 import lightsearch from "./searchdark.png";
 import { AiFillHome } from "react-icons/ai";
+import { useAuth } from "./AuthContext";
 
 export default function Header() {
+  const { isAuthenticated, user, logout } = useAuth();
   const [theme, setTheme] = useState("dark");
 
   const toggleTheme = () => {
@@ -130,6 +132,43 @@ export default function Header() {
               </div>
             </ul>
           </div>
+        </div>
+        <div className="auth-actions">
+          {isAuthenticated ? (
+            <>
+              <span
+                style={{
+                  fontFamily: "Oswald",
+                  fontSize: "2em",
+                  fontWeight: "200",
+                  marginTop: "10px",
+                  letterSpacing: "1px",
+                  height: "fit-content",
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "10px",
+                }}
+                className="WelcomeMessage"
+              >
+                Welcome, {user.name}
+                <button
+                  onClick={logout}
+                  className="RegisterButton"
+                  style={{ width: "70px", height: "40px", marginTop: "7px" }}
+                >
+                  Logout
+                </button>
+              </span>
+
+              {user.role === "auteur" && <Link to="/Home"></Link>}
+              {user.role === "utilisateur" && <Link to="/Add_article"></Link>}
+              {user.role === "admin" && (
+                <Link to="/admin-dashboard">Admin Panel</Link>
+              )}
+            </>
+          ) : (
+            ""
+          )}
         </div>
       </header>
       <div className="underNav"></div>

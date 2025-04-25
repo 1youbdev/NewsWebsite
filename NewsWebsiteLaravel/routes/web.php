@@ -1,7 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+// use App\Http\Controllers\AuthController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,6 +17,11 @@ use App\Http\Controllers\AuthController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/register', [AuthController::class, 'register']);
+// Route::get('/test-mail', function () {
+//     Mail::raw('This is a test email sent via Brevo SMTP.', function ($message) {
+//         $message->to('rizkiayoub0605@gmail.com') // put your email here to receive the test
+//                 ->subject('Test Mail from Laravel');
+//     });
+
+//     return 'Test email sent!';
+// });

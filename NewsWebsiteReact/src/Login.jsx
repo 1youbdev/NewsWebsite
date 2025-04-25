@@ -6,54 +6,66 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
     try {
-      // First, get the CSRF cookie
+      // CSRF Cookie from Laravel Sanctum
       await axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie", {
         withCredentials: true,
       });
 
-      // Then, make the login request
+      // Login request
       const response = await axios.post(
-        "http://127.0.0.1:8000/login",
+        "http://127.0.0.1:8000/api/login",
         {
-          email: email,
-          password: password,
+          email: email.trim(),
+          password,
         },
         {
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+          },
           withCredentials: true,
         }
       );
 
-      localStorage.setItem("token", response.data.token);
+      // Save token and user
+      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Optional: you can store user info if the backend returns it
-      // localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      // Navigate based on role (assuming role is included in the response)
-      if (response.data.role === "admin") {
-        navigate("/Home");
-      } else {
-        navigate("/Article");
-      }
+      // Redirect
+      const redirectPath =
+        response.data.user.role === "admin" ? "/Dashboard" : "/Home";
+      navigate(redirectPath);
     } catch (err) {
-      setError("Email ou mot de passe incorrect");
-      console.error(err);
+      if (err.response?.status === 422) {
+        const errors = err.response.data.errors;
+        setError(
+          Object.values(errors).flat().join(" ") ||
+            "Invalid email or password format"
+        );
+      } else {
+        setError(
+          err.response?.data?.message || "Login failed. Please try again."
+        );
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <center>
       <div
-        style={{
-          display: "flex",
-          gap: "50px",
-          padding: "25px",
-        }}
+        style={{ display: "flex", gap: "50px", padding: "25px" }}
         className="commentForm"
       >
         <div>
@@ -62,12 +74,11 @@ function Login() {
             className="commentFormHeading"
             style={{ margin: "0px", textAlign: "left" }}
           >
-            {" "}
-            Be heard{" "}
+            Be heard
           </h1>
         </div>
         <div>
-          <form action="" className="formForComment" onSubmit={handleLogin}>
+          <form onSubmit={handleSubmit} className="formForComment">
             {error && (
               <div
                 style={{
@@ -93,15 +104,15 @@ function Login() {
             >
               Email
             </span>
-            <br />
             <input
-              type="text"
+              type="email"
               placeholder="Enter your email"
               onChange={(e) => setEmail(e.target.value)}
               className="formForCommentInput"
               style={{ width: "fit-content" }}
               name="email"
               value={email}
+              required
             />
             <br />
             <br />
@@ -117,7 +128,6 @@ function Login() {
             >
               Password
             </span>
-            <br />
             <input
               type="password"
               placeholder="Enter your password"
@@ -125,8 +135,10 @@ function Login() {
               className="formForCommentInput"
               name="password"
               value={password}
-            />{" "}
-            <br /> <br />
+              required
+            />
+            <br />
+            <br />
             <button
               style={{
                 borderRadius: "10px",
@@ -136,8 +148,9 @@ function Login() {
                 cursor: "pointer",
               }}
               type="submit"
+              disabled={loading}
             >
-              Log in
+              {loading ? "..." : "Log in"}
             </button>
           </form>
           <br />

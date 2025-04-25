@@ -183,6 +183,16 @@ img {
   cursor: pointer;
   transition: 0.3s;
 }
+.WelcomeMessage{
+  font-family: "Oswald";
+  color: var(--text-color);
+  font-weight: 100;
+  text-decoration: none;
+  margin: 7px;
+  height: fit-content;
+  width: fit-content;
+  cursor: pointer;
+}
 .linkStyle::after {
   content: "";
   display: block;
