@@ -7,7 +7,7 @@ export default function Add_article() {
     category: '',
     text: '',
     pdf: null,
-    image: null // ✅ Added image
+    image: null
   });
 
   const [errors, setErrors] = useState({});
@@ -95,7 +95,7 @@ export default function Add_article() {
             style={{ margin: "0", fontSize: "64px", lineHeight: "1" }}
             className="commentFormHeading"
           >
-            We Value Transparency and Credibility . 
+            We Value Transparency and Credibility .
           </p>
         </div>
         <div>
@@ -136,7 +136,7 @@ export default function Add_article() {
             >Category</label><br />
             <select
               className="formForCommentInput"
-              name="categories"
+              name="category"
               value={formData.category}
               onChange={handleChange}
               style={{ width: "100%" }}
@@ -167,10 +167,10 @@ export default function Add_article() {
             >Text</label><br />
             <textarea
               className="formForCommentInput"
-              name="content"
+              name="text"
               value={formData.text}
               onChange={handleChange}
-              placeholder="Write you document here"
+              placeholder="Write your document here"
               rows="4"
               style={{ width: "93%" }}
             />

@@ -6,27 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            if (!Schema::hasColumn('articles', 'priority')) {
-                $table->integer('priority')->default(0)->after('idCategory');
-            }
+            $table->string('file')->nullable()->after('image');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            if (Schema::hasColumn('articles', 'priority')) {
-                $table->dropColumn('priority');
-            }
+            $table->dropColumn('file');
         });
     }
 };

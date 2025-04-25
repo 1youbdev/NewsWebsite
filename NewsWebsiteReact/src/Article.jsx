@@ -72,7 +72,6 @@ export default function Article() {
               style={{
                 fontFamily: "Oswald",
                 fontSize: "1em",
-                margin: "0",
                 width: "800px",
                 margin: "10px",
               }}
@@ -160,6 +159,7 @@ export default function Article() {
                 game-changer. However, I think cloud computing and AI
                 advancements will take this even further in the coming years.
               </p>
+              
               <span
                 style={{ display: "flex", flexDirection: "row", gap: "5px" }}
               >
