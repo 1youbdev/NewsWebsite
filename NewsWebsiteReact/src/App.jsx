@@ -93,9 +93,12 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/Register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />
-            <Route path="/Profile" element={<Profile />} />
+            {/* <Route path="/Profile" element={<Profile />} /> */}
             <Route path="/verify/:id/:token" element={<VerifyEmailPrompt />} />
-            <Route path="/Profile" element={getDashboardElement()} />
+            <Route
+              path="/Profile"
+              element={isAuthenticated ? <Profile /> : <Login />}
+            />
             <Route path="/admin-dashboard" element={getDashboardElement()} />
             <Route
               path="/Add_article"
