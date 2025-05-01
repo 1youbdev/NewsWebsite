@@ -216,3 +216,46 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
 
     return response()->json(['message' => 'Email successfully verified.']);
 })->name('verification.verify')->middleware('signed');
+
+Route::middleware('auth:sanctum')->post('/subscribe', [App\Http\Controllers\SubscriptionController::class, 'toggle']);
+Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
+    $user = $request->user();
+    return response()->json([
+        'user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'phone' => $user->phoneNumber,
+            'subscribed' => $user->subscription()->exists(), // or a boolean field if stored directly
+        ]
+    ]);
+});
+
+Route::middleware('auth:sanctum')->patch('/profile', function (Request $request) {
+    $user = $request->user();
+
+    // Validate incoming request data (e.g., name, email, etc.)
+    $validated = $request->validate([
+        'name' => 'sometimes|string|max:255',
+        'email' => 'sometimes|email|max:255|unique:users,email,' . $user->id,
+        'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
+        'phone' => 'sometimes|string|max:20',
+    ]);
+
+    // Update user's details
+    $user->update($validated);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Profile updated successfully',
+        'user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'phone' => $user->phoneNumber,
+        ]
+    ]);
+});
+Route::get('/test', function () {
+    return response()->json(['message' => 'CORS OK']);
+});

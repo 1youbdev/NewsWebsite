@@ -3,10 +3,12 @@ import { NavLink, Link } from "react-router-dom";
 import "./website.css";
 import logodark from "./logodark.png";
 import logolight from "./logolight.png";
-import darkmode from "./night-mode.png";
+import darkmode from "./night-modeTest.png";
 import lightmode from "./contrast.png";
-import darksearch from "./searchlight.png";
-import lightsearch from "./searchdark.png";
+import darksearch from "./magnifying-glassLight.png";
+import DarkUser from "./profile-userWhite.png";
+import LightUser from "./profile-userBlack.png";
+import lightsearch from "./magnifying-glassDark.png";
 import { AiFillHome } from "react-icons/ai";
 import { useAuth } from "./AuthContext";
 
@@ -43,7 +45,7 @@ export default function Header() {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                gap: "50px",
+                gap: "40px",
                 marginTop: "30px",
                 marginBottom: "-10px",
               }}
@@ -107,7 +109,12 @@ export default function Header() {
                 <li>
                   <img
                     src={theme === "dark" ? lightsearch : darksearch}
-                    style={{ marginTop: "3px", cursor: "pointer" }}
+                    style={{
+                      marginTop: "3px",
+                      cursor: "pointer",
+                      width: "24px",
+                      height: "24px",
+                    }}
                     alt="Search"
                   />
                 </li>
@@ -129,6 +136,21 @@ export default function Header() {
                     onClick={toggleTheme}
                   />
                 </li>
+                <Link to="/Profile">
+                  <li>
+                    <img
+                      src={theme === "dark" ? DarkUser : LightUser}
+                      alt="UserIcon"
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        position: "relative",
+                        marginTop: "3px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </li>
+                </Link>
               </div>
             </ul>
           </div>

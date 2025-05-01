@@ -42,8 +42,12 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       // Redirect
-      const redirectPath =
-        response.data.user.role === "admin" ? "/Dashboard" : "/Home";
+      let redirectPath = "/Home";
+      if (response.data.user.role === "admin") {
+        redirectPath = "/admin-dashboard";
+      } else if (response.data.user.role === "auteur") {
+        redirectPath = "/Add_article";
+      }
       navigate(redirectPath);
     } catch (err) {
       if (err.response?.status === 422) {

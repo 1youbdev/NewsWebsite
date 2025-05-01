@@ -19,5 +19,5 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
         event(new Verified($user));
     }
 
-    return redirect('http://localhost:5173/verify-prompt?verified=1');
+    return redirect('http://localhost:5173/login?verified=1');
 })->middleware(['web'])->name('verification.verify');
