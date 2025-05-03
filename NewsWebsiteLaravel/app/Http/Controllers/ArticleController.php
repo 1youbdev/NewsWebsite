@@ -17,7 +17,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::with(['user', 'category'])->get();
-        
+
         return response()->json([
             'success' => true,
             'data' => $articles
@@ -33,11 +33,13 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'idUser' => 'required|exists:users,id',
+            'idUser' => 'required',
             'idCategory' => 'required|exists:categories,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'file' => 'nullable|file|mimes:pdf|max:2048',
+            'priority' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -127,7 +129,7 @@ class ArticleController extends Controller
                 $oldImagePath = str_replace('/storage', 'public', $article->image);
                 Storage::delete($oldImagePath);
             }
-            
+
             $imagePath = $request->file('image')->store('public/articles');
             $data['image'] = Storage::url($imagePath);
         }

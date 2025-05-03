@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+// import axios from "axios";
+import instance from "./axios";
 
 export default function Add_article() {
   const [formData, setFormData] = useState({
-    title: '',
-    category: '',
-    text: '',
+    title: "",
+    category: "",
+    text: "",
     pdf: null,
-    image: null
+    image: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -15,47 +17,54 @@ export default function Add_article() {
 
   const handleChange = (e) => {
     const { name, type, files, value } = e.target;
-    if (type === 'file') {
-      setFormData({
-        ...formData,
-        [name]: files[0]
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
+    setFormData({
+      ...formData,
+      [name]: type === "file" ? files[0] : value,
+    });
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    if (!formData.category) {
-      newErrors.category = 'Category is required';
-    }
-    if (!formData.text.trim()) {
-      newErrors.text = 'Text is required';
-    }
-    if (formData.pdf && formData.pdf.type !== 'application/pdf') {
-      newErrors.pdf = 'Only PDF files are allowed';
-    }
-    if (formData.image && !formData.image.type.startsWith('image/')) {
-      newErrors.image = 'Only image files are allowed';
-    }
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.text.trim()) newErrors.text = "Text is required";
+    if (formData.pdf && formData.pdf.type !== "application/pdf")
+      newErrors.pdf = "Only PDF files are allowed";
+    if (formData.image && !formData.image.type.startsWith("image/"))
+      newErrors.image = "Only image files are allowed";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log('Article submitted:', formData);
+    if (!validateForm()) return;
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log(user?.id);
+    try {
+      const payload = new FormData();
+      payload.append("idUser", user?.id);
+      payload.append("title", formData.title);
+      payload.append("idCategory", formData.category);
+      payload.append("content", formData.text);
+      if (formData.pdf) payload.append("file", formData.pdf);
+      if (formData.image) payload.append("image", formData.image);
+
+      await instance.post("/api/articles", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       setSubmitted(true);
+    } catch (error) {
+      console.error(
+        "Error submitting article:",
+        error.response?.data || error.message
+      );
+      setErrors({ general: "Failed to submit article. Please try again." });
     }
   };
 
@@ -64,7 +73,11 @@ export default function Add_article() {
       <div style={{ textAlign: "center", marginTop: "50px" }}>
         <h1>Article submitted successfully!</h1>
         <p>
-          You can now <Link to="/articles" style={{ color: "#00f" }}>view all articles</Link>.
+          You can now{" "}
+          <Link to="/articles" style={{ color: "#00f" }}>
+            view all articles
+          </Link>
+          .
         </p>
       </div>
     );
@@ -101,16 +114,10 @@ export default function Add_article() {
         <div>
           <form onSubmit={handleSubmit} className="formForComment">
             {/* Title */}
-            <label className="commentFormHeading"
-              style={{
-                position: "relative",
-                fontSize: "16px",
-                textAlign: "left",
-                display: "block",
-                width: "100%",
-                color: "white",
-              }}
-            >Title</label><br />
+            <label className="commentFormHeading" style={labelStyle}>
+              Title
+            </label>
+            <br />
             <input
               type="text"
               className="formForCommentInput"
@@ -120,20 +127,15 @@ export default function Add_article() {
               placeholder="Title"
               style={{ width: "93%" }}
             />
-            {errors.title && <span style={{ color: "red", fontSize: "12px" }}>{errors.title}</span>}
-            <br /><br />
+            {errors.title && <span style={errorStyle}>{errors.title}</span>}
+            <br />
+            <br />
 
             {/* Category */}
-            <label className="commentFormHeading"
-              style={{
-                position: "relative",
-                fontSize: "16px",
-                textAlign: "left",
-                display: "block",
-                width: "100%",
-                color: "white",
-              }}
-            >Category</label><br />
+            <label className="commentFormHeading" style={labelStyle}>
+              Category
+            </label>
+            <br />
             <select
               className="formForCommentInput"
               name="category"
@@ -142,29 +144,26 @@ export default function Add_article() {
               style={{ width: "100%" }}
             >
               <option value="">Select a category</option>
-              <option value="politics">Politics</option>
-              <option value="society">Society</option>
-              <option value="economy">Economy</option>
-              <option value="mena">MENA</option>
-              <option value="international">International</option>
-              <option value="media">Media</option>
-              <option value="culture">Culture</option>
-              <option value="sports">Sports</option>
+              <option value="0">Politics</option>
+              <option value="1">Society</option>
+              <option value="2">Economy</option>
+              <option value="3">MENA</option>
+              <option value="4">International</option>
+              <option value="5">Media</option>
+              <option value="6">Culture</option>
+              <option value="7">Sports</option>
             </select>
-            {errors.category && <span style={{ color: "red", fontSize: "12px" }}>{errors.category}</span>}
-            <br /><br />
+            {errors.category && (
+              <span style={errorStyle}>{errors.category}</span>
+            )}
+            <br />
+            <br />
 
             {/* Text */}
-            <label className="commentFormHeading"
-              style={{
-                position: "relative",
-                fontSize: "16px",
-                textAlign: "left",
-                display: "block",
-                width: "100%",
-                color: "white",
-              }}
-            >Text</label><br />
+            <label className="commentFormHeading" style={labelStyle}>
+              Text
+            </label>
+            <br />
             <textarea
               className="formForCommentInput"
               name="text"
@@ -174,20 +173,15 @@ export default function Add_article() {
               rows="4"
               style={{ width: "93%" }}
             />
-            {errors.text && <span style={{ color: "red", fontSize: "12px" }}>{errors.text}</span>}
-            <br /><br />
+            {errors.text && <span style={errorStyle}>{errors.text}</span>}
+            <br />
+            <br />
 
-            {/* PDF File Upload */}
-            <label className="commentFormHeading"
-              style={{
-                position: "relative",
-                fontSize: "16px",
-                textAlign: "left",
-                display: "block",
-                width: "100%",
-                color: "white",
-              }}
-            >Upload PDF</label><br />
+            {/* PDF Upload */}
+            <label className="commentFormHeading" style={labelStyle}>
+              Upload PDF
+            </label>
+            <br />
             <input
               type="file"
               className="formForCommentInput"
@@ -195,20 +189,15 @@ export default function Add_article() {
               onChange={handleChange}
               style={{ width: "93%" }}
             />
-            {errors.pdf && <span style={{ color: "red", fontSize: "12px" }}>{errors.pdf}</span>}
-            <br /><br />
+            {errors.pdf && <span style={errorStyle}>{errors.pdf}</span>}
+            <br />
+            <br />
 
             {/* Image Upload */}
-            <label className="commentFormHeading"
-              style={{
-                position: "relative",
-                fontSize: "16px",
-                textAlign: "left",
-                display: "block",
-                width: "100%",
-                color: "white",
-              }}
-            >Upload Image</label><br />
+            <label className="commentFormHeading" style={labelStyle}>
+              Upload Image
+            </label>
+            <br />
             <input
               type="file"
               className="formForCommentInput"
@@ -216,8 +205,11 @@ export default function Add_article() {
               onChange={handleChange}
               style={{ width: "93%" }}
             />
-            {errors.image && <span style={{ color: "red", fontSize: "12px" }}>{errors.image}</span>}
-            <br /><br />
+            {errors.image && <span style={errorStyle}>{errors.image}</span>}
+            <br />
+            <br />
+
+            {errors.general && <p style={{ color: "red" }}>{errors.general}</p>}
 
             <button
               type="submit"
@@ -241,4 +233,18 @@ export default function Add_article() {
       </div>
     </center>
   );
+}
+
+const labelStyle = {
+  position: "relative",
+  fontSize: "16px",
+  textAlign: "left",
+  display: "block",
+  width: "100%",
+  color: "white",
+};
+
+const errorStyle = {
+  color: "red",
+  fontSize: "12px",
 };
