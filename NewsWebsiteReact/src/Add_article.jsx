@@ -144,14 +144,14 @@ export default function Add_article() {
               style={{ width: "100%" }}
             >
               <option value="">Select a category</option>
-              <option value="0">Politics</option>
-              <option value="1">Society</option>
-              <option value="2">Economy</option>
-              <option value="3">MENA</option>
-              <option value="4">International</option>
-              <option value="5">Media</option>
-              <option value="6">Culture</option>
-              <option value="7">Sports</option>
+              <option value="1">Politics</option>
+              <option value="2">Society</option>
+              <option value="3">Economy</option>
+              <option value="4">MENA</option>
+              <option value="5">International</option>
+              <option value="6">Media</option>
+              <option value="7">Culture</option>
+              <option value="8">Sports</option>
             </select>
             {errors.category && (
               <span style={errorStyle}>{errors.category}</span>
