@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\SectionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,7 @@ Route::prefix('articles')->group(function () {
     // Get all articles
     Route::get('/', function () {
         $articles = Article::with(['user', 'category'])->get();
-        
+
         return response()->json([
             'success' => true,
             'data' => $articles
@@ -119,7 +120,7 @@ Route::prefix('articles')->group(function () {
                 $oldImagePath = str_replace('/storage', 'public', $article->image);
                 Storage::delete($oldImagePath);
             }
-            
+
             $imagePath = $request->file('image')->store('public/articles');
             $data['image'] = Storage::url($imagePath);
         }
@@ -187,7 +188,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-    
+
     // Protected routes can be added here
 });
 
@@ -259,3 +260,8 @@ Route::middleware('auth:sanctum')->patch('/profile', function (Request $request)
 Route::get('/test', function () {
     return response()->json(['message' => 'CORS OK']);
 });
+// Add these to your routes/api.php file
+
+Route::get('/sections', [App\Http\Controllers\SectionController::class, 'index']);
+Route::get('/categories/{categoryId}/articles', [App\Http\Controllers\SectionController::class, 'getByCategory']);
+Route::get('/latest-article', [App\Http\Controllers\SectionController::class, 'getLatestArticle']);
