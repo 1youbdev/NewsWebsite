@@ -87,7 +87,9 @@ class SectionController extends Controller
             'title' => $article->title,
             'content' => substr($article->content, 0, 150) . (strlen($article->content) > 150 ? '...' : ''),
             'fullContent' => $article->content,
-            'image' => $article->image,
+            // 'image' => $article->image,
+            'image' => $article->image ? asset('storage/articles/' . $article->image) : null,
+
             'categoryId' => $article->idCategory,
             'categoryName' => $article->category ? $article->category->name : null,
             'created_at' => $article->created_at->format('Y-m-d H:i:s'),

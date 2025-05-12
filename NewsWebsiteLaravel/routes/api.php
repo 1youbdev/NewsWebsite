@@ -3,18 +3,19 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\DetailController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Article;
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\URL;
-
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,148 +26,18 @@ use Illuminate\Support\Facades\URL;
 |
 */
 
+// Use the ArticleController for all article routes
 Route::prefix('articles')->group(function () {
-    // Get all articles
-    Route::get('/', function () {
-        $articles = Article::with(['user', 'category'])->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => $articles
-        ]);
-    });
-
-    // Create new article
-    Route::post('/', function (Request $request) {
-        $validator = Validator::make($request->all(), [
-            'idUser' => 'required|exists:users,id',
-            'idCategory' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $data = $request->only(['idUser', 'idCategory', 'title', 'content']);
-
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/articles');
-            $data['image'] = Storage::url($imagePath);
-        }
-
-        $article = Article::create($data);
-
-        return response()->json([
-            'success' => true,
-            'data' => $article,
-            'message' => 'Article created successfully'
-        ], 201);
-    });
-
-    // Get single article
-    Route::get('/{id}', function ($id) {
-        $article = Article::with(['user', 'category'])->find($id);
-
-        if (!$article) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Article not found'
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $article
-        ]);
-    });
-
-    // Update article
-    Route::put('/{id}', function (Request $request, $id) {
-        $article = Article::find($id);
-
-        if (!$article) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Article not found'
-            ], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'idUser' => 'sometimes|exists:users,id',
-            'idCategory' => 'sometimes|exists:categories,id',
-            'title' => 'sometimes|string|max:255',
-            'content' => 'sometimes|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $data = $request->only(['idUser', 'idCategory', 'title', 'content']);
-
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($article->image) {
-                $oldImagePath = str_replace('/storage', 'public', $article->image);
-                Storage::delete($oldImagePath);
-            }
-
-            $imagePath = $request->file('image')->store('public/articles');
-            $data['image'] = Storage::url($imagePath);
-        }
-
-        $article->update($data);
-
-        return response()->json([
-            'success' => true,
-            'data' => $article,
-            'message' => 'Article updated successfully'
-        ]);
-    });
-
-    // Delete article
-    Route::delete('/{id}', function ($id) {
-        $article = Article::find($id);
-
-        if (!$article) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Article not found'
-            ], 404);
-        }
-
-        // Delete associated image if exists
-        if ($article->image) {
-            $imagePath = str_replace('/storage', 'public', $article->image);
-            Storage::delete($imagePath);
-        }
-
-        $article->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Article deleted successfully'
-        ]);
-    });
+    Route::get('/', [ArticleController::class, 'index']);
+    Route::post('/', [ArticleController::class, 'store']);
+    Route::get('/{id}', [ArticleController::class, 'show']);
+    Route::put('/{id}', [ArticleController::class, 'update']);
+    Route::delete('/{id}', [ArticleController::class, 'destroy']);
 });
 
-
+// Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-// Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-//     $request->fulfill(); // Marks email as verified
-//     return response()->json(['message' => 'Email verified successfully']);
-// })->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
 
 Route::post('/email/verification-notification', function (Request $request) {
     $user = $request->user();
@@ -184,19 +55,11 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Verification email sent']);
 })->middleware(['auth:sanctum', 'throttle:6,1']);
 
-
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-
-    // Protected routes can be added here
 });
 
-// Email verification route
-// Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-//     $request->fulfill();
-//     return response()->json(['message' => 'Email verified successfully']);
-// })->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     $user = User::findOrFail($id);
 
@@ -218,7 +81,7 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash) {
     return response()->json(['message' => 'Email successfully verified.']);
 })->name('verification.verify')->middleware('signed');
 
-Route::middleware('auth:sanctum')->post('/subscribe', [App\Http\Controllers\SubscriptionController::class, 'toggle']);
+Route::middleware('auth:sanctum')->post('/subscribe', [SubscriptionController::class, 'toggle']);
 Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     $user = $request->user();
     return response()->json([
@@ -257,11 +120,22 @@ Route::middleware('auth:sanctum')->patch('/profile', function (Request $request)
         ]
     ]);
 });
+
 Route::get('/test', function () {
     return response()->json(['message' => 'CORS OK']);
 });
-// Add these to your routes/api.php file
 
-Route::get('/sections', [App\Http\Controllers\SectionController::class, 'index']);
-Route::get('/categories/{categoryId}/articles', [App\Http\Controllers\SectionController::class, 'getByCategory']);
-Route::get('/latest-article', [App\Http\Controllers\SectionController::class, 'getLatestArticle']);
+// Section routes
+Route::get('/sections', [SectionController::class, 'index']);
+Route::get('/sections/category/{categoryId}', [SectionController::class, 'getByCategory']);
+Route::get('/sections/latest', [SectionController::class, 'getLatestArticle']);
+
+// Article detail route - use controller
+Route::get('/articles/{id}', [DetailController::class, 'show']);
+
+// Comment routes
+// Comment routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+});
