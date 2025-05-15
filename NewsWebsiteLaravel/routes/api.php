@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +36,7 @@ Route::prefix('articles')->group(function () {
         ]);
     });
 
-    // Create new article
+    // Create new article   
     Route::post('/', function (Request $request) {
         $validator = Validator::make($request->all(), [
             'idUser' => 'required|exists:users,id',
@@ -230,7 +231,21 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
         ]
     ]);
 });
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    $user = $request->user();
 
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'phone' => $user->phoneNumber,
+            'subscribed' => $user->subscribed, // Ensure this field exists in your User model
+        ],
+    ]);
+});
 Route::middleware('auth:sanctum')->patch('/profile', function (Request $request) {
     $user = $request->user();
 
@@ -258,4 +273,9 @@ Route::middleware('auth:sanctum')->patch('/profile', function (Request $request)
 });
 Route::get('/test', function () {
     return response()->json(['message' => 'CORS OK']);
+});
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::middleware('auth:sanctum')->match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
+Route::get('/home', function(){
+    return response()->json(['message' => 'Welcome to the home page!']);
 });

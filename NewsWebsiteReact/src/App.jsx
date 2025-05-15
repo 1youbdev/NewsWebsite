@@ -1,119 +1,94 @@
 import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuth, AuthProvider } from "./AuthContext.jsx";
 import Header from "./Header.jsx";
 import Footer from "./Footer.jsx";
 import Section from "./Section.jsx";
-import Dashboard from "./Admin.jsx";
-import Politics from "./Politics.jsx";
-import Sports from "./Sports.jsx";
-import Society from "./Society.jsx";
-import Mena from "./Mena.jsx";
-import VerifyEmailPrompt from "./VerifyEmailPrompt.jsx";
+import Login from "./Login.jsx";
+import Register from "./Register.jsx";
+import Profile from "./Profile.jsx";
 import Media from "./Media.jsx";
 import Culture from "./Culture.jsx";
 import International from "./International.jsx";
 import Economy from "./Economy.jsx";
-import Login from "./Login.jsx";
-import Test from "./Test.jsx";
-import axios from "axios";
 import Article from "./Article.jsx";
-import ForgotPassword from "./ForgotPassword.jsx";
-import ReactDOM from "react-dom";
-import Register from "./Register.jsx";
-import CookieConsent from "./CookieConsent.jsx";
-import NotificationComponent from "./Notification.jsx";
-import Registre_author from "./Registre_author.jsx";
+import Politics from "./Politics.jsx";
+import Sports from "./Sports.jsx";
+import Society from "./Society.jsx";
+import Mena from "./Mena.jsx";
 import Add_article from "./Add_article.jsx";
-import { Route, Routes } from "react-router";
-import { BrowserRouter, Navigate } from "react-router-dom";
-import SingupBack from "./SingupBack.jsx";
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://127.0.0.1:8000";
-import { useEffect, useState } from "react";
 import AdminDashboard from "./AdminDashboard.jsx";
-import AuthorDashboard from "./AuthorDashboard.jsx";
-import Logout from "./Logout.jsx";
-import { AuthProvider } from "./AuthContext.jsx";
-import Profile from "./Profile.jsx";
+import NotificationComponent from "./Notification.jsx";
+import CookieConsent from "./CookieConsent.jsx";
+
+function ProtectedRoute({ children, roles }) {
+  const { isAuthenticated, user, setRedirectPath, loadingAuth } = useAuth();
+
+  if (loadingAuth) {
+    return <div>Loading...</div>; // Show a loading indicator while checking auth state
+  }
+
+  if (!isAuthenticated) {
+    setRedirectPath(window.location.pathname); // Store the current path
+    return <Navigate to="/login" />;
+  }
+
+  if (roles && !roles.includes(user?.role)) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+}
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const userData = localStorage.getItem("user");
-
-    if (token && userData) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(userData));
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }
-    setLoadingAuth(false);
-  }, []);
-
-  const getDashboardElement = () => {
-    if (!isAuthenticated) {
-      return <Navigate to="/login" />;
-    }
-
-    switch (user?.role) {
-      case "admin":
-        return <AdminDashboard />;
-      case "auteur":
-        return <Navigate to="/Add_article" />;
-      case "user":
-        return <Navigate to="/Home" />;
-      default:
-        return <Navigate to="/login" />;
-    }
-  };
-
   return (
     <AuthProvider>
       <BrowserRouter>
         <NotificationComponent />
         <Header />
-        {loadingAuth ? (
-          <div>Loading...</div>
-        ) : (
-          <Routes>
-            <Route path="/ForgotPassword" element={<ForgotPassword />} />
-            <Route path="/" element={<Section />} />
-            <Route path="/Home" element={<Section />} />
-            <Route path="/Article" element={<Article />} />
-            <Route path="/Politics" element={<Politics />} />
-            <Route path="/Society" element={<Society />} />
-            <Route path="/Mena" element={<Mena />} />
-            <Route path="/Media" element={<Media />} />
-            <Route path="/International" element={<International />} />
-            <Route path="/Culture" element={<Culture />} />
-            <Route path="/Economy" element={<Economy />} />
-            <Route path="/Sports" element={<Sports />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/Register" element={<Register />} />
-            <Route path="/logout" element={<Logout />} />
-            {/* <Route path="/Profile" element={<Profile />} /> */}
-            <Route path="/verify/:id/:token" element={<VerifyEmailPrompt />} />
-            <Route
-              path="/Profile"
-              element={isAuthenticated ? <Profile /> : <Login />}
-            />
-            <Route path="/admin-dashboard" element={getDashboardElement()} />
-            <Route
-              path="/Add_article"
-              element={
-                isAuthenticated &&
-                (user?.role === "auteur" || user?.role === "admin") ? (
-                  <Add_article />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route path="/SingupBack" element={<SingupBack />} />
-          </Routes>
-        )}
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Section />} />
+          <Route path="/Article" element={<Article />} />
+          <Route path="/Politics" element={<Politics />} />
+          <Route path="/Society" element={<Society />} />
+          <Route path="/Mena" element={<Mena />} />
+          <Route path="/Media" element={<Media />} />
+          <Route path="/International" element={<International />} />
+          <Route path="/Culture" element={<Culture />} />
+          <Route path="/Economy" element={<Economy />} />
+          <Route path="/Sports" element={<Sports />} />
+
+          <Route path="/Home" element={<Section />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/Register" element={<Register />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/Profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Add_article"
+            element={
+              <ProtectedRoute roles={["auteur", "admin"]}>
+                <Add_article />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
         <CookieConsent
           location="bottom"
           buttonText="Accept"

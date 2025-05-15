@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { useAuth } from "./AuthContext.jsx";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { login, redirectPath, setRedirectPath } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -15,52 +16,25 @@ function Login() {
     setLoading(true);
 
     try {
-      // CSRF Cookie from Laravel Sanctum
       await axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie", {
         withCredentials: true,
       });
 
-      // Login request
       const response = await axios.post(
         "http://127.0.0.1:8000/api/login",
-        {
-          email: email.trim(),
-          password,
-        },
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          withCredentials: true,
-        }
+        { email: email.trim(), password },
+        { headers: { Accept: "application/json" }, withCredentials: true }
       );
 
-      // Save token and user
-      localStorage.setItem("authToken", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      login(response.data.token, response.data.user);
 
-      // Redirect
-      let redirectPath = "/Home";
-      if (response.data.user.role === "admin") {
-        redirectPath = "/admin-dashboard";
-      } else if (response.data.user.role === "auteur") {
-        redirectPath = "/Add_article";
-      }
-      navigate(redirectPath);
+      // Redirect to the stored path or default to "/Home"
+      navigate(redirectPath || "/Home");
+      setRedirectPath("/"); // Reset redirect path
     } catch (err) {
-      if (err.response?.status === 422) {
-        const errors = err.response.data.errors;
-        setError(
-          Object.values(errors).flat().join(" ") ||
-            "Invalid email or password format"
-        );
-      } else {
-        setError(
-          err.response?.data?.message || "Login failed. Please try again."
-        );
-      }
+      setError(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }

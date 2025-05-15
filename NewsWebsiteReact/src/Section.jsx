@@ -1,29 +1,103 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./website.css";
 import ArrowBlack from "./right-arrow.png";
 import ArrowWhite from "./right-arroww.png";
 import Article from "./Article";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import Politics from "./Politics";
 export default function Section() {
   const [theme, setTheme] = useState("dark");
-  // const [showFullContent, setShowFullContent] = useState(false);
+  const [user, setUser] = useState(null); // Store user data
+  const [loading, setLoading] = useState(true); // Loading state for user data
+  const [error, setError] = useState(null); // Error state for API calls
+  const navigate = useNavigate();
 
-  // const toggleContent = () =>{
-  //   setShowFullContent(!showFullContent);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/user", {
+          withCredentials: true,
+        });
+        setUser(response.data); // Set user data from the backend
+      } catch (err) {
+        if (err.response && err.response.status === 401) {
+          setUser(null); // User is not logged in
+        } else {
+          console.error("Error fetching user data:", err);
+          setError("Failed to load user data.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleSubscriptionToggle = async () => {
+    if (!user) {
+      alert("You need to log in to subscribe.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
+
+      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
+
+      const response = await axios.post(
+        "http://localhost:8000/api/subscribe",
+        { subscribed: !user.subscribed, email: user.email }, // Match the payload
+        { withCredentials: true }
+      );
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        subscribed: response.data.subscribed,
+      }));
+    } catch (error) {
+      console.error("Error updating subscription:", error);
+      if (error.response?.status === 401) {
+        alert("Unauthorized. Please log in.");
+        navigate("/login");
+      } else if (error.response?.status === 500) {
+        alert("Server error. Please try again later.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } finally {
+      console.log(user); // Debugging: Check if all fields are present
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }, []);
+
+  // if (loading) {
+  //   return <div className="loader">Loading...</div>; // Show a loading indicator
   // }
+
+  if (error) {
+    return <div className="error">{error}</div>; // Show an error message
+  }
+
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
   };
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    setTheme(savedTheme);
-    document.documentElement.setAttribute("data-theme", savedTheme);
-  }, []);
   return (
     <>
       <div
@@ -407,14 +481,20 @@ export default function Section() {
                 >
                   Stay informed
                 </p>
-                <Link to="/login">
-                  <button
-                    className="RegisterButton"
-                    style={{ width: "250px", height: "40px" }}
-                  >
-                    Subscribe
-                  </button>
-                </Link>
+                <div>
+                  <p className="textColor">
+                    <button
+                      className="RegisterButton"
+                      style={{ width: "250px", height: "40px" }}
+                      onClick={handleSubscriptionToggle}
+                      disabled={user?.subscribed}
+                    >
+                      {user?.subscribed
+                        ? "Already subscribed!"
+                        : "Subscribe to our newsletter !"}
+                    </button>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

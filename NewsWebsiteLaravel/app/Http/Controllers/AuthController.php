@@ -58,12 +58,24 @@ class AuthController extends Controller
                 'message' => 'Please verify your email address first.'
             ], 403);
         }
+        $redirectPath = '';
+    if (is_null($user->email_verified_at)) {
+        $redirectPath = '/verify-email'; // This is the React route
+    } elseif ($user->role === 'admin') {
+        $redirectPath = '/admin-dashboard';
+    } elseif ($user->role === 'auteur') {
+        $redirectPath = '/Add_article';
+    } else {
+        $redirectPath = '/Home';
+    }
 
         return response()->json([
             'token' => $user->createToken('auth_token')->plainTextToken,
             'user' => $user->only(['id', 'name', 'email', 'role']),
-            'message' => 'Login successful'
+            'message' => 'Login successful',
+            'redirect'=>$redirectPath,
         ]);
+        // redirect()->route('home');
     }
 
     public function logout(Request $request)

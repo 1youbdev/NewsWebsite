@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
+
 export default function Profile() {
   const [user, setUser] = useState({
     name: "",
@@ -9,29 +10,14 @@ export default function Profile() {
     email: "",
     username: "",
     PhoneNumber: "",
+    selectedCategories: [],
   });
 
-  const categories = [
-    "Politics",
-    "Sports",
-    "Society",
-    "Mena",
-    "Media",
-    "Culture",
-    "International",
-    "Economy",
-  ];
+  const [categories, setCategories] = useState([]);
   const [theme, setTheme] = useState("dark");
 
-  // const toggleTheme = () => {
-  //   const newTheme = theme === "dark" ? "light" : "dark";
-  //   setTheme(newTheme);
-  //   document.documentElement.setAttribute("data-theme", newTheme);
-  //   localStorage.setItem("theme", newTheme);
-  // };
   const handleSubscriptionToggle = async () => {
     try {
-      // Ensure CSRF cookie is set
       await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
         withCredentials: true,
       });
@@ -55,6 +41,7 @@ export default function Profile() {
       alert("Something went wrong.");
     }
   };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -62,18 +49,19 @@ export default function Profile() {
           withCredentials: true,
         });
 
-        // Étape 2 : Faire la requête pour obtenir le profil
         const response = await axios.get("http://localhost:8000/api/profile", {
-          withCredentials: true, // Essentiel pour inclure le cookie d'authentification
+          withCredentials: true,
         });
+
         const data = response.data;
 
         setUser({
           name: data.user.name || "",
           email: data.user.email || "",
           username: data.user.username || "",
-          PhoneNumber: data.user.phone || "", // Assurez-vous que c'est bien le bon nom
+          PhoneNumber: data.user.phone || "",
           subscribed: data.user.subscribed ?? false,
+          selectedCategories: data.user.categories || [],
         });
 
         const storedTheme = localStorage.getItem("theme") || "dark";
@@ -83,15 +71,27 @@ export default function Profile() {
         console.error(error);
       }
     };
-    fetchProfile();
-  }, []);
 
-  const getCsrfToken = async () => {
-    await fetch("http://localhost:8000/sanctum/csrf-cookie", {
-      method: "GET",
-      credentials: "include",
-    });
-  };
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/categories",
+          {
+            withCredentials: true,
+          }
+        );
+
+        const categoryArray = response.data.data;
+        setCategories(categoryArray);
+        console.log("Fetched categories:", response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchProfile();
+    fetchCategories();
+  }, []);
 
   return (
     <div
@@ -126,6 +126,7 @@ export default function Profile() {
         >
           Here you can manage your account settings and preferences.
         </p>
+
         <div>
           <p className="textColor" style={{ textAlign: "left" }}>
             <strong>Email:</strong> {user.email}{" "}
@@ -173,7 +174,8 @@ export default function Profile() {
             </button>
           </p>
         </div>
-        {/* Checkboxes with hover effect */}
+
+        {/* Favorite categories */}
         <div style={{ marginTop: "30px" }}>
           <p
             className="textColor"
@@ -190,7 +192,7 @@ export default function Profile() {
           >
             {categories.map((category) => (
               <label
-                key={category}
+                key={category.id}
                 className="textColor"
                 style={{
                   display: "flex",
@@ -200,21 +202,33 @@ export default function Profile() {
                   transition: "0.3s",
                   cursor: "pointer",
                 }}
-                onMouseOver={(e) => {
-                  e.target.style.backgroundColor = "#f1f1f1"; // Light gray background on hover
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.backgroundColor = "transparent";
-                }}
               >
-                <input type="checkbox" style={{ marginRight: "8px" }} />
-                {category}
+                <input
+                  type="checkbox"
+                  style={{ marginRight: "8px" }}
+                  checked={user.selectedCategories.some(
+                    (c) => c.id === category.id
+                  )}
+                  onChange={(e) => {
+                    const updatedCategories = e.target.checked
+                      ? [...user.selectedCategories, category]
+                      : user.selectedCategories.filter(
+                          (c) => c.id !== category.id
+                        );
+
+                    setUser((prevUser) => ({
+                      ...prevUser,
+                      selectedCategories: updatedCategories,
+                    }));
+                  }}
+                />
+                {category.name}
               </label>
             ))}
           </div>
         </div>
 
-        {/* Subscribe Section */}
+        {/* Subscribe toggle */}
         <div style={{ marginTop: "30px" }}>
           <p className="textColor">
             {user.subscribed
@@ -231,6 +245,8 @@ export default function Profile() {
             </button>
           </p>
         </div>
+
+        {/* Save button */}
         <div
           style={{
             display: "flex",
@@ -238,51 +254,25 @@ export default function Profile() {
             marginTop: "30px",
           }}
         >
-          {/* <button
-            className="SaveButton"
-            onClick={async () => {
-              try {
-                const response = await fetch(
-                  "http://localhost:8000/api/profile",
-                  {
-                    method: "PATCH",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    credentials: "include", // important for Sanctum
-                    body: JSON.stringify(user),
-                  }
-                );
-
-                if (!response.ok) throw new Error("Failed to save changes");
-                alert("Changes saved successfully!");
-              } catch (error) {
-                console.error(error);
-                alert("Failed to save changes.");
-              }
-            }}
-            style={{
-              fontSize: "0.8em",
-              cursor: "pointer",
-              justifyContent: "right",
-            }}
-          >
-            {" "}
-            Save Changes?
-          </button> */}
           <button
             className="SaveButton"
             onClick={async () => {
               try {
-                // Ensure the CSRF cookie is set (required for Sanctum)
                 await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
                   withCredentials: true,
                 });
 
-                // Send the PATCH request
+                // Send only the selected category IDs
+                const categoryIds = user.selectedCategories.map(
+                  (cat) => cat.id
+                );
+
                 const response = await axios.patch(
                   "http://localhost:8000/api/profile",
-                  user,
+                  {
+                    ...user,
+                    categories: categoryIds,
+                  },
                   { withCredentials: true }
                 );
 
