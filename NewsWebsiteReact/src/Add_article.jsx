@@ -265,13 +265,30 @@ export default function Add_article() {
   const [errors, setErrors] = useState({});
   const [isSubmitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPdfUploaded, setIsPdfUploaded] = useState(false);
 
   const handleChange = (e) => {
     const { name, type, files, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "file" ? files[0] : value,
-    });
+    
+    if (type === "file" && name === "pdf" && files.length > 0) {
+      // Check if a PDF file was selected
+      if (files[0].type === "application/pdf") {
+        setIsPdfUploaded(true);
+        // Clear text field when a PDF is uploaded
+        setFormData({
+          ...formData,
+          pdf: files[0],
+          text: "Content will be extracted from the PDF file."
+        });
+      } else {
+        setIsPdfUploaded(false);
+      }
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === "file" ? files[0] : value,
+      });
+    }
   };
 
   const validateForm = () => {
@@ -279,7 +296,12 @@ export default function Add_article() {
 
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.category) newErrors.category = "Category is required";
-    if (!formData.text.trim()) newErrors.text = "Text is required";
+    
+    // Allow empty text if PDF is uploaded
+    if (!isPdfUploaded && !formData.text.trim()) {
+      newErrors.text = "Text is required if no PDF is uploaded";
+    }
+    
     if (formData.pdf && formData.pdf.type !== "application/pdf")
       newErrors.pdf = "Only PDF files are allowed";
     if (formData.image && !formData.image.type.startsWith("image/"))
@@ -305,7 +327,11 @@ export default function Add_article() {
       payload.append("idUser", user.id);
       payload.append("title", formData.title);
       payload.append("idCategory", formData.category);
-      payload.append("content", formData.text);
+      
+      // Only append content if we're not relying on PDF extraction
+      if (!isPdfUploaded) {
+        payload.append("content", formData.text);
+      }
       
       if (formData.pdf) payload.append("file", formData.pdf);
       if (formData.image) payload.append("image", formData.image);
@@ -426,24 +452,6 @@ export default function Add_article() {
             <br />
             <br />
 
-            {/* Text */}
-            <label className="commentFormHeading" style={labelStyle}>
-              Text
-            </label>
-            <br />
-            <textarea
-              className="formForCommentInput"
-              name="text"
-              value={formData.text}
-              onChange={handleChange}
-              placeholder="Write your document here"
-              rows="4"
-              style={{ width: "93%" }}
-            />
-            {errors.text && <span style={errorStyle}>{errors.text}</span>}
-            <br />
-            <br />
-
             {/* PDF Upload */}
             <label className="commentFormHeading" style={labelStyle}>
               Upload PDF
@@ -458,6 +466,30 @@ export default function Add_article() {
               style={{ width: "93%" }}
             />
             {errors.pdf && <span style={errorStyle}>{errors.pdf}</span>}
+            {isPdfUploaded && (
+              <span style={{ color: 'green', fontSize: '12px' }}>
+                PDF uploaded. Article content will be extracted automatically.
+              </span>
+            )}
+            <br />
+            <br />
+
+            {/* Text */}
+            <label className="commentFormHeading" style={labelStyle}>
+              Text {isPdfUploaded && <span>(Optional - PDF content will be used)</span>}
+            </label>
+            <br />
+            <textarea
+              className="formForCommentInput"
+              name="text"
+              value={formData.text}
+              onChange={handleChange}
+              placeholder={isPdfUploaded ? "Content will be extracted from the PDF file" : "Write your document here"}
+              rows="4"
+              style={{ width: "93%" }}
+              disabled={isPdfUploaded}
+            />
+            {errors.text && <span style={errorStyle}>{errors.text}</span>}
             <br />
             <br />
 

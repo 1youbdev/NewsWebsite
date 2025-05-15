@@ -2350,8 +2350,6 @@
 //   );
 // }
 
-
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import instance from "./axios";
@@ -2417,7 +2415,6 @@ export default function Section() {
     );
   }
 
-  // Function to navigate to article page
   const goToArticle = (articleId) => {
     navigate(`/article/${articleId}`);
   };
@@ -2432,6 +2429,7 @@ export default function Section() {
           width: "100%",
           maxWidth: "100vw",
           marginTop: "20px",
+          padding: "0 15px"
         }}
       >
         <div
@@ -2443,7 +2441,7 @@ export default function Section() {
             maxWidth: "100vw",
           }}
         >
-          {/* Latest Article Section - matches the first component's main article */}
+          {/* Latest Article Section */}
           <div
             style={{
               display: "flex",
@@ -2461,6 +2459,7 @@ export default function Section() {
                 <img 
                   src={sectionData.latestArticle.image || "https://picsum.photos/id/1/500/300"} 
                   style={{ width: "100%", height: "auto" }}
+                  alt={sectionData.latestArticle.title}
                 />
                 <p
                   className="textColor"
@@ -2490,24 +2489,25 @@ export default function Section() {
                 <span 
                   className="readmore"
                   onClick={() => goToArticle(sectionData.latestArticle.id)}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", display: "flex", alignItems: "center", marginTop: "5px" }}
                 >
-                  <p className="textColor">Read more</p>
+                  <p className="textColor" style={{ marginRight: "5px" }}>Read more</p>
                   <img
                     src={theme === "dark" ? ArrowWhite : ArrowBlack}
                     className="readmorearrow"
+                    alt="Arrow"
                   />
                 </span>
               </div>
             )}
           </div>
 
-          {/* Featured Articles Section - matches the first component's side articles */}
+          {/* Featured Articles Section */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "20px",
+              gap: "50px",
               flexWrap: "wrap",
               width: "100%",
               maxWidth: "100vw",
@@ -2519,6 +2519,7 @@ export default function Section() {
                   <img 
                     src={article.image || `https://picsum.photos/id/${article.id || 121}/250/150`} 
                     style={{ width: "250px", height: "150px" }}
+                    alt={article.title}
                   />
                   <p
                     className="textColor"
@@ -2548,19 +2549,20 @@ export default function Section() {
                   <span 
                     className="readmore"
                     onClick={() => goToArticle(article.id)}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", display: "flex", alignItems: "center", marginTop: "5px" }}
                   >
-                    <p className="textColor">Read more</p>
+                    <p className="textColor" style={{ marginRight: "5px" }}>Read more</p>
                     <img
                       src={theme === "dark" ? ArrowWhite : ArrowBlack}
                       className="readmorearrow"
+                      alt="Arrow"
                     />
                   </span>
                 </div>
               ))}
           </div>
 
-          {/* Latest Articles List and Newsletter - matches the first component's right sidebar */}
+          {/* Latest Articles List and Newsletter */}
           <div
             style={{
               margin: "0",
@@ -2569,7 +2571,7 @@ export default function Section() {
               height: "fit-content",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "50px" }}>
               <div className="multiplearticles">
                 <p
                   className="textColor"
@@ -2588,7 +2590,7 @@ export default function Section() {
                   sectionData.featuredArticles.slice(0, 8).map((article) => (
                     <div
                       key={article.id}
-                      style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+                      style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "10px" }}
                     >
                       <span
                         className="textColor"
@@ -2602,8 +2604,8 @@ export default function Section() {
                         }}
                         onClick={() => goToArticle(article.id)}
                       >
-                        <p className="colorofnavbar">{article.formattedDate}</p>
-                        {article.title}
+                        <p className="colorofnavbar" style={{ margin: "0" }}>{article.formattedDate}</p>
+                        <span>{article.title}</span>
                       </span>
                     </div>
                   ))}
@@ -2655,13 +2657,23 @@ export default function Section() {
           </div>
         </div>
 
-        {/* Categorized Articles Sections - matches the first component's category sections */}
+        {/* Categorized Articles Sections */}
         <div>
           {sectionData.categorizedArticles &&
             sectionData.categorizedArticles.map((categoryGroup) => (
-              <div key={categoryGroup.categoryId}>
-                <Link to={`/categories/${categoryGroup.categoryId}`} className="textColor">
-                  <h1 className="categories">{categoryGroup.category}</h1>
+              <div key={categoryGroup.categoryId} style={{ marginBottom: "40px" }}>
+                <Link to={`/categories/${categoryGroup.categoryId}`} className="textColor" style={{ textDecoration: "none" }}>
+                  <h1 
+                    className="categories"
+                    style={{
+                      fontFamily: "Oswald",
+                      fontSize: "2em",
+                      marginBottom: "20px",
+                      color: "inherit"
+                    }}
+                  >
+                    {categoryGroup.category}
+                  </h1>
                 </Link>
                 <div
                   style={{
@@ -2685,6 +2697,7 @@ export default function Section() {
                       <img 
                         src={article.image || `https://picsum.photos/id/${article.id || 28}/250/150`} 
                         style={{ width: "100%", height: "150px", objectFit: "cover" }}
+                        alt={article.title}
                       />
                       <p
                         className="textColor"
@@ -2718,12 +2731,18 @@ export default function Section() {
                       <span 
                         className="readmore"
                         onClick={() => goToArticle(article.id)}
-                        style={{ cursor: "pointer" }}
+                        style={{ 
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          marginTop: "10px"
+                        }}
                       >
-                        <p className="textColor">Read more</p>
+                        <p className="textColor" style={{ marginRight: "10px" }}>Read more</p>
                         <img
                           src={theme === "dark" ? ArrowWhite : ArrowBlack}
                           className="readmorearrow"
+                          alt="Arrow"
                         />
                       </span>
                     </div>
