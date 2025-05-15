@@ -30,6 +30,46 @@ class ArticleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'idUser' => 'required',
+    //         'idCategory' => 'required|exists:categories,id',
+    //         'title' => 'required|string|max:255',
+    //         'content' => 'required|string',
+    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    //         'file' => 'nullable|file|mimes:pdf|max:2048',
+    //         'priority' => 'nullable|integer',
+    //     ]);
+
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
+    //     if ($request->hasFile('file')) {
+    //         $filePath = $request->file('file')->store('public/files');
+    //         $data['file'] = Storage::url($filePath);
+    //     }
+
+    //     $data = $request->only(['idUser', 'idCategory', 'title', 'content']);
+
+    //     if ($request->hasFile('image')) {
+    //         $imagePath = $request->file('image')->store('public/articles');
+    //         $data['image'] = Storage::url($imagePath);
+    //     }
+
+    //     $article = Article::create($data);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $article,
+    //         'message' => 'Article created successfully'
+    //     ], 201);
+    // }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -49,11 +89,18 @@ class ArticleController extends Controller
             ], 422);
         }
 
-        $data = $request->only(['idUser', 'idCategory', 'title', 'content']);
+        $data = $request->only(['idUser', 'idCategory', 'title', 'content', 'priority']);
 
+        // Handle image upload
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('public/articles');
             $data['image'] = Storage::url($imagePath);
+        }
+
+        // Handle file upload
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('public/files');
+            $data['file'] = Storage::url($filePath);
         }
 
         $article = Article::create($data);
@@ -112,6 +159,7 @@ class ArticleController extends Controller
             'title' => 'sometimes|string|max:255',
             'content' => 'sometimes|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'file' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -123,6 +171,7 @@ class ArticleController extends Controller
 
         $data = $request->only(['idUser', 'idCategory', 'title', 'content']);
 
+        // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($article->image) {
@@ -134,6 +183,18 @@ class ArticleController extends Controller
             $data['image'] = Storage::url($imagePath);
         }
 
+        // Handle file upload
+        if ($request->hasFile('file')) {
+            // Delete old file if exists
+            if ($article->file) {
+                $oldFilePath = str_replace('/storage', 'public', $article->file);
+                Storage::delete($oldFilePath);
+            }
+
+            $filePath = $request->file('file')->store('public/files');
+            $data['file'] = Storage::url($filePath);
+        }
+
         $article->update($data);
 
         return response()->json([
@@ -142,7 +203,6 @@ class ArticleController extends Controller
             'message' => 'Article updated successfully'
         ]);
     }
-
     /**
      * Remove the specified article from storage.
      *
@@ -164,6 +224,12 @@ class ArticleController extends Controller
         if ($article->image) {
             $imagePath = str_replace('/storage', 'public', $article->image);
             Storage::delete($imagePath);
+        }
+
+        // Delete associated file if exists
+        if ($article->file) {
+            $filePath = str_replace('/storage', 'public', $article->file);
+            Storage::delete($filePath);
         }
 
         $article->delete();

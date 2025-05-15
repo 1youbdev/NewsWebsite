@@ -82,6 +82,9 @@ function App() {
             <Route path="/" element={<Section />} />
             <Route path="/Home" element={<Section />} />
             <Route path="/Article" element={<Article />} />
+            
+            <Route path="/article/:id" element={<Article />} />
+
             <Route path="/Politics" element={<Politics />} />
             <Route path="/Society" element={<Society />} />
             <Route path="/Mena" element={<Mena />} />
