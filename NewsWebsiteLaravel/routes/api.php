@@ -9,6 +9,8 @@ use App\Http\Controllers\SectionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\DictionaryController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Article;
@@ -135,7 +137,18 @@ Route::get('/articles/{id}', [DetailController::class, 'show']);
 
 // Comment routes
 // Comment routes
+Route::get('/articles/{id}/comments', [App\Http\Controllers\CommentController::class, 'getArticleComments']);
+
+// Make sure you also have these routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/comments', [CommentController::class, 'store']);
-    Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+    Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store']);
+    Route::delete('/comments/{id}', [App\Http\Controllers\CommentController::class, 'destroy']);
+});
+// The Laravel API routes remain the same
+// In your routes/api.php file:
+
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'search']);
+
+Route::prefix('dictionary')->group(function () {
+    Route::get('/synonyms', [DictionaryController::class, 'getSynonyms']);
 });

@@ -2868,7 +2868,445 @@
 // }
 
 
-import React, { useState, useEffect } from "react";
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useEffect } from "react";
+// import { useParams, Link } from "react-router-dom";
+// import user from "./user.png";
+// import "./website.css";
+// import Arrow from "./right-arrow.png";
+// import instance from "./axios";
+
+// export default function Article() {
+//   const { id } = useParams();
+//   const [theme, setTheme] = useState("dark");
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [article, setArticle] = useState(null);
+//   const [similarArticles, setSimilarArticles] = useState([]);
+//   const [comments, setComments] = useState([]);
+//   const [commentText, setCommentText] = useState("");
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const [error, setError] = useState("");
+//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+//   // Improved image URL handler with random placeholder fallback
+//   const getImageUrl = (path) => {
+//     if (!path) return `https://picsum.photos/id/${Math.floor(Math.random() * 100)}/800/400`;
+//     if (path.startsWith('http')) return path;
+//     return `${instance.defaults.baseURL}${path}`;
+//   };
+
+//   // Check if user is logged in
+//   const checkAuthStatus = () => {
+//     const token = localStorage.getItem("authToken");
+//     setIsLoggedIn(!!token);
+//   };
+
+//   useEffect(() => {
+//     checkAuthStatus();
+    
+//     const savedTheme = localStorage.getItem("theme") || "dark";
+//     setTheme(savedTheme);
+//     document.documentElement.setAttribute("data-theme", savedTheme);
+
+//     const fetchArticleData = async () => {
+//       try {
+//         setIsLoading(true);
+//         const response = await instance.get(`/api/articles/${id}`);
+//         if (response.data.success) {
+//           setArticle(response.data.article);
+//           setSimilarArticles(response.data.similarArticles || []);
+//           setComments(response.data.comments || []);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching article:", error);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchArticleData();
+//   }, [id]);
+
+//   // Handle comment submission
+//   const handleCommentSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!commentText.trim()) return;
+    
+//     setIsSubmitting(true);
+//     setError("");
+    
+//     try {
+//       const token = localStorage.getItem("authToken");
+//       const response = await instance.post('/api/comments', {
+//         articleId: id,
+//         text: commentText
+//       }, {
+//         headers: {
+//           Authorization: `Bearer ${token}`
+//         }
+//       });
+      
+//       if (response.data.success) {
+//         // Add the new comment to the comments array
+//         setComments([response.data.comment, ...comments]);
+//         setCommentText(""); // Clear the comment field
+//       }
+//     } catch (error) {
+//       console.error("Error submitting comment:", error);
+//       if (error.response?.status === 401) {
+//         setError("You must be logged in to comment");
+//         setIsLoggedIn(false);
+//       } else if (error.response?.data?.errors) {
+//         setError(Object.values(error.response.data.errors)[0][0] || "Failed to submit comment");
+//       } else {
+//         setError("Failed to submit comment. Please try again.");
+//       }
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <div style={{
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         height: "100vh",
+//       }}>
+//         <div className="loader"></div>
+//       </div>
+//     );
+//   }
+
+//   if (!article) {
+//     return (
+//       <div style={{
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         height: "100vh",
+//       }}>
+//         <p>Article not found</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <div style={{ display: "flex", flexDirection: "row", gap: "100px" }}>
+//         <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+//           <div
+//             style={{
+//               margin: "20px",
+//               borderRadius: "30px",
+//               boxShadow: "4px 4px 20px black",
+//               width: "fit-content",
+//               height: "fit-content",
+//             }}
+//           >
+//             <img
+//               src={getImageUrl(article.image)}
+//               style={{ margin: "10px", width: "800px", height: "400px", objectFit: "cover" }}
+//               alt={article.title}
+//             />
+//             <p
+//               className="textColor"
+//               style={{
+//                 fontFamily: "Oswald",
+//                 fontSize: "2.6em",
+//                 fontWeight: "bold",
+//                 margin: "10px",
+//                 letterSpacing: "1px",
+//               }}
+//             >
+//               {article.title}
+//             </p>
+//             <p
+//               className="textColor"
+//               style={{
+//                 fontFamily: "Oswald",
+//                 fontSize: "1em",
+//                 width: "800px",
+//                 margin: "10px",
+//               }}
+//             >
+//               {article.content}
+//             </p>
+//           </div>
+
+//           <div
+//             style={{
+//               width: "600px",
+//               margin: "20px",
+//               padding: "20px",
+//               borderRadius: "25px",
+//             }}
+//             className="commentdiv"
+//           >
+//             <div className="textColor">
+//               <label
+//                 htmlFor=""
+//                 style={{ fontSize: "1.5em", fontWeight: "300", color: "black" }}
+//               >
+//                 Comments
+//               </label>
+//               {comments.length > 0 ? (
+//                 comments.map((comment, index) => (
+//                   <div key={index} style={{ marginBottom: "15px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+//                     <span style={{ display: "flex", flexDirection: "row", gap: "5px" }}>
+//                       <p style={{ color: "black", fontWeight: "500" }}>{comment.user || 'Anonymous'}</p>
+//                       <img
+//                         src={user}
+//                         style={{ width: "25px", height: "25px", marginTop: "15px" }}
+//                         alt="User"
+//                       />
+//                     </span>
+//                     <p style={{ marginTop: "5px" }}>{comment.text}</p>
+//                   </div>
+//                 ))
+//               ) : (
+//                 <p style={{ color: "gray", marginTop: "10px" }}>No comments yet. Be the first to comment!</p>
+//               )}
+//               <br />
+              
+//               {error && <div style={{ color: "red", margin: "10px 0" }}>{error}</div>}
+              
+//               {isLoggedIn ? (
+//                 <form onSubmit={handleCommentSubmit}>
+//                   <textarea
+//                     name="comment"
+//                     id="comment"
+//                     value={commentText}
+//                     onChange={(e) => setCommentText(e.target.value)}
+//                     placeholder="Write your comment here..."
+//                     style={{
+//                       resize: "none",
+//                       borderRadius: "10px",
+//                       width: "600px",
+//                       height: "200px",
+//                       padding: "10px",
+//                       fontFamily: "inherit"
+//                     }}
+//                   ></textarea>
+//                   <br />
+//                   <button
+//                     type="submit"
+//                     disabled={isSubmitting || !commentText.trim()}
+//                     style={{
+//                       backgroundColor: "#4CAF50",
+//                       color: "white",
+//                       border: "none",
+//                       borderRadius: "5px",
+//                       padding: "10px 20px",
+//                       float: "right",
+//                       cursor: "pointer",
+//                       opacity: (isSubmitting || !commentText.trim()) ? "0.7" : "1"
+//                     }}
+//                   >
+//                     {isSubmitting ? "Posting..." : "Add Comment"}
+//                   </button>
+//                 </form>
+//               ) : (
+//                 <div style={{ textAlign: "center", marginTop: "10px" }}>
+//                   <p style={{ color: "gray", marginBottom: "10px" }}>You need to log in to comment</p>
+//                   <Link
+//                     style={{
+//                       textDecoration: "none",
+//                       backgroundColor: "#4285F4",
+//                       color: "white",
+//                       padding: "10px 20px",
+//                       borderRadius: "5px",
+//                       fontWeight: "bold",
+//                     }}
+//                     to="/login"
+//                   >
+//                     Log In to Comment
+//                   </Link>
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+
+//         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+//           <div className="TrendingArticles">
+//             <p
+//               style={{
+//                 fontFamily: "Oswald",
+//                 fontSize: "1.8em",
+//                 fontWeight: "100",
+//                 margin: "0",
+//                 letterSpacing: "1px",
+//                 color: "white",
+//               }}
+//             >
+//               Trending Articles
+//             </p>
+//             {similarArticles.slice(0, 4).map((article) => (
+//               <Link 
+//                 to={`/article/${article.id}`} 
+//                 key={article.id} 
+//                 style={{ textDecoration: "none" }}
+//               >
+//                 <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "15px" }}>
+//                   <img
+//                     style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)", width: "140px", height: "70px" }}
+//                     src={getImageUrl(article.image)}
+//                     alt={article.title}
+//                   />
+//                   <div>
+//                     <p style={{ color: "white", fontFamily: "Oswald", fontSize: "1.5em", margin: "0" }}>
+//                       {article.title}
+//                     </p>
+//                     <p style={{ color: "gray", fontSize: "0.8em", margin: "0" }}>
+//                       {article.formattedDate || 'Recently'}
+//                     </p>
+//                   </div>
+//                 </div>
+//               </Link>
+//             ))}
+//           </div>
+
+//           <div className="Register">
+//             <p
+//               style={{
+//                 fontFamily: "Oswald",
+//                 fontSize: "2.6em",
+//                 fontWeight: "200",
+//                 margin: "0",
+//                 letterSpacing: "1px",
+//                 color: "white",
+//               }}
+//             >
+//               Newsletter
+//             </p>
+//             <p
+//               style={{
+//                 fontFamily: "Oswald",
+//                 fontSize: "1.1em",
+//                 fontWeight: "100",
+//                 margin: "0",
+//                 letterSpacing: "1px",
+//                 color: "white",
+//               }}
+//             >
+//               Stay informed
+//             </p>
+//             <input
+//               type="email"
+//               placeholder="Put your Email here..."
+//               className="RegisterInput"
+//             />
+//             <button className="RegisterButton">Subscribe</button>
+//           </div>
+
+//           <div className="SimilarArticles">
+//             <p
+//               style={{
+//                 fontFamily: "Oswald",
+//                 fontSize: "1.8em",
+//                 fontWeight: "100",
+//                 margin: "0",
+//                 letterSpacing: "1px",
+//                 color: "white",
+//               }}
+//             >
+//               Similar Articles
+//             </p>
+//             {similarArticles.slice(0, 6).map((article) => (
+//               <Link 
+//                 to={`/article/${article.id}`} 
+//                 key={article.id} 
+//                 style={{ textDecoration: "none" }}
+//               >
+//                 <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "15px" }}>
+//                   <img
+//                     style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)", width: "140px", height: "70px" }}
+//                     src={getImageUrl(article.image)}
+//                     alt={article.title}
+//                   />
+//                   <div>
+//                     <p style={{ color: "white", fontFamily: "Oswald", fontSize: "1.5em", margin: "0" }}>
+//                       {article.title}
+//                     </p>
+//                     <p style={{ color: "gray", fontSize: "0.8em", margin: "0" }}>
+//                       {article.formattedDate || 'Recently'}
+//                     </p>
+//                   </div>
+//                 </div>
+//               </Link>
+//             ))}
+//           </div>
+
+//           <div
+//             className="discoverArticles"
+//             style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+//           >
+//             <center>
+//               <h1 className="textColor">Discover more</h1>
+//             </center>
+//             {similarArticles.slice(0, 2).map((article) => (
+//               <div className="multiplearticles" key={article.id}>
+//                 <img 
+//                   src={getImageUrl(article.image)} 
+//                   style={{ width: "250px", height: "150px" }}
+//                   alt={article.title}
+//                 />
+//                 <p
+//                   className="textColor"
+//                   style={{
+//                     fontFamily: "Oswald",
+//                     fontSize: "1.6em",
+//                     fontWeight: "bold",
+//                     margin: "0",
+//                     letterSpacing: "1px",
+//                   }}
+//                 >
+//                   {article.title}
+//                 </p>
+//                 <p
+//                   className="textColor"
+//                   style={{
+//                     fontFamily: "Oswald",
+//                     fontSize: "0.8em",
+//                     margin: "0",
+//                     width: "250px",
+//                   }}
+//                 >
+//                   {article.content.length > 150 
+//                     ? `${article.content.substring(0, 150)}...`
+//                     : article.content}
+//                 </p>
+//                 <Link 
+//                   to={`/article/${article.id}`} 
+//                   className="readmore"
+//                   style={{ textDecoration: "none" }}
+//                 >
+//                   <p>Read more</p>
+//                   <img src={Arrow} className="readmorearrow" alt="Read more" />
+//                 </Link>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import user from "./user.png";
 import "./website.css";
@@ -2886,6 +3324,14 @@ export default function Article() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Dictionary related state
+  const [selectedWord, setSelectedWord] = useState("");
+  const [synonyms, setSynonyms] = useState([]);
+  const [loadingSynonyms, setLoadingSynonyms] = useState(false);
+  const [showDictionary, setShowDictionary] = useState(false);
+  const [dictionaryPosition, setDictionaryPosition] = useState({ x: 0, y: 0 });
+  const dictionaryRef = useRef(null);
 
   // Improved image URL handler with random placeholder fallback
   const getImageUrl = (path) => {
@@ -2899,6 +3345,73 @@ export default function Article() {
     const token = localStorage.getItem("authToken");
     setIsLoggedIn(!!token);
   };
+
+  // Handle text selection for dictionary
+  const handleTextSelect = () => {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText && selectedText.length > 0 && selectedText.length < 30) {
+      // Get selection position
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      
+      setSelectedWord(selectedText);
+      setShowDictionary(true);
+      setDictionaryPosition({
+        x: rect.left + (rect.width / 2),
+        y: rect.bottom + window.scrollY
+      });
+    } else {
+      setShowDictionary(false);
+    }
+  };
+
+  // Fetch synonyms from API
+  const fetchSynonyms = async () => {
+    if (!selectedWord) return;
+    
+    setLoadingSynonyms(true);
+    setSynonyms([]);
+    
+    try {
+      const response = await instance.get('/api/dictionary/synonyms', {
+        params: { word: selectedWord }
+      });
+      
+      if (response.data.success) {
+        setSynonyms(response.data.synonyms);
+      } else {
+        setSynonyms([]);
+      }
+    } catch (error) {
+      console.error("Error fetching synonyms:", error);
+      setSynonyms([]);
+    } finally {
+      setLoadingSynonyms(false);
+    }
+  };
+
+  // Click outside handler to close dictionary
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dictionaryRef.current && !dictionaryRef.current.contains(event.target)) {
+        setShowDictionary(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Fetch synonyms when word is selected
+  useEffect(() => {
+    if (selectedWord) {
+      fetchSynonyms();
+    }
+  }, [selectedWord]);
 
   useEffect(() => {
     checkAuthStatus();
@@ -3021,18 +3534,92 @@ export default function Article() {
             >
               {article.title}
             </p>
-            <p
-              className="textColor"
+            <div
+              className="textColor article-content"
               style={{
                 fontFamily: "Oswald",
                 fontSize: "1em",
                 width: "800px",
                 margin: "10px",
               }}
+              onMouseUp={handleTextSelect}
             >
               {article.content}
-            </p>
+            </div>
           </div>
+
+          {/* Dictionary popup */}
+          {showDictionary && (
+            <div 
+              ref={dictionaryRef}
+              className="dictionary-popup"
+              style={{
+                position: "absolute",
+                left: `${dictionaryPosition.x}px`,
+                top: `${dictionaryPosition.y}px`,
+                transform: "translateX(-50%)",
+                backgroundColor: theme === "dark" ? "#333" : "#f9f9f9",
+                color: theme === "dark" ? "#fff" : "#333",
+                padding: "15px",
+                borderRadius: "8px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+                zIndex: 1000,
+                maxWidth: "300px",
+                minWidth: "200px"
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                <h3 style={{ margin: 0 }}>"{selectedWord}"</h3>
+                <button 
+                  onClick={() => setShowDictionary(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "16px",
+                    cursor: "pointer",
+                    color: theme === "dark" ? "#fff" : "#333"
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div>
+                <button 
+                  onClick={fetchSynonyms}
+                  style={{
+                    backgroundColor: "#4285F4",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    marginBottom: "10px"
+                  }}
+                >
+                  Get Synonyms
+                </button>
+                
+                <div style={{ marginTop: "10px" }}>
+                  {loadingSynonyms ? (
+                    <p>Loading synonyms...</p>
+                  ) : synonyms.length > 0 ? (
+                    <div>
+                      <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Synonyms:</p>
+                      <ul style={{ paddingLeft: "20px", margin: "5px 0" }}>
+                        {synonyms.map((synonym, index) => (
+                          <li key={index}>{synonym}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p>No synonyms found</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div
             style={{
