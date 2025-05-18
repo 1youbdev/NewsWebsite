@@ -18,7 +18,7 @@ class User extends Authenticatable implements MustVerifyEmail
     const ROLE_USER = 'utilisateur';
 
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'phoneNumber'
+        'name', 'email', 'password', 'role', 'phoneNumber','username'
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -55,5 +55,9 @@ class User extends Authenticatable implements MustVerifyEmail
 public function sendEmailVerificationNotification()
 {
     $this->notify(new \App\Notifications\CustomVerifyEmail);
+}
+public function categories()
+{
+  return $this->belongsToMany(Category::class, 'user_categories');
 }
 }

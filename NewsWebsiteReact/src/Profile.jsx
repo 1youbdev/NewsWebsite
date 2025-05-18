@@ -9,89 +9,151 @@ export default function Profile() {
     subscribed: false,
     email: "",
     username: "",
-    PhoneNumber: "",
+    phoneNumber: "",
     selectedCategories: [],
   });
-
   const [categories, setCategories] = useState([]);
   const [theme, setTheme] = useState("dark");
-
-  const handleSubscriptionToggle = async () => {
+  const handlePasswordReset = async () => {
     try {
       await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
         withCredentials: true,
       });
 
       const response = await axios.post(
-        "http://localhost:8000/api/subscribe",
-        {
-          subscribed: !user.subscribed,
-          email: user.email,
-        },
+        "http://localhost:8000/api/password/reset-link",
+        {},
         { withCredentials: true }
       );
 
-      const data = response.data;
-      setUser((prevUser) => ({
-        ...prevUser,
-        subscribed: data.subscribed,
-      }));
+      alert("Password reset email sent successfully!");
+    } catch (error) {
+      console.error("Password reset error:", error.response?.data || error);
+      alert("Failed to send password reset link.");
+    }
+  };
+
+  const [editingField, setEditingField] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+          withCredentials: true,
+        });
+        const { user: u } = (
+          await axios.get("http://localhost:8000/api/profile", {
+            withCredentials: true,
+          })
+        ).data;
+        setUser({
+          name: u.name || "",
+          email: u.email || "",
+          username: u.username || "",
+          phoneNumber: u.phoneNumber || "",
+          subscribed: u.subscribed ?? false,
+          selectedCategories: u.categories || [],
+        });
+        const stored = localStorage.getItem("theme") || "dark";
+        setTheme(stored);
+        document.documentElement.setAttribute("data-theme", stored);
+      } catch (error) {
+        console.error("Fetch profile error:", error);
+      }
+    })();
+
+    (async () => {
+      try {
+        const resp = await axios.get("http://localhost:8000/api/categories", {
+          withCredentials: true,
+        });
+        setCategories(resp.data.data);
+      } catch (error) {
+        console.error("Fetch categories error:", error);
+      }
+    })();
+  }, []);
+
+  const handleSubscriptionToggle = async () => {
+    try {
+      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
+      const response = await axios.post(
+        "http://localhost:8000/api/subscribe",
+        { subscribed: !user.subscribed, email: user.email },
+        { withCredentials: true }
+      );
+      setUser((u) => ({ ...u, subscribed: response.data.subscribed }));
     } catch (error) {
       console.error(error);
       alert("Something went wrong.");
     }
   };
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
-          withCredentials: true,
-        });
-
-        const response = await axios.get("http://localhost:8000/api/profile", {
-          withCredentials: true,
-        });
-
-        const data = response.data;
-
-        setUser({
-          name: data.user.name || "",
-          email: data.user.email || "",
-          username: data.user.username || "",
-          PhoneNumber: data.user.phone || "",
-          subscribed: data.user.subscribed ?? false,
-          selectedCategories: data.user.categories || [],
-        });
-
-        const storedTheme = localStorage.getItem("theme") || "dark";
-        setTheme(storedTheme);
-        document.documentElement.setAttribute("data-theme", storedTheme);
-      } catch (error) {
-        console.error(error);
-      }
+  const handleSave = async () => {
+    const payload = {
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      phoneNumber: user.phoneNumber,
+      categories: user.selectedCategories.map((c) => c.id),
     };
+    console.log("Saving profile with payload:", payload);
 
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/api/categories",
-          {
-            withCredentials: true,
+    try {
+      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
+      const resp = await axios.patch(
+        "http://localhost:8000/api/profile",
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log("Save response:", resp.data);
+      setEditingField(null);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Save error:", error.response?.data || error);
+      alert("Failed to update profile. Check console for details.");
+    }
+  };
+
+  const renderEditable = (fieldKey, label, value) => (
+    <div style={{ position: "relative", marginBottom: "10px" }}>
+      <strong>{label}: </strong>
+      {editingField === fieldKey ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) =>
+            setUser((u) => ({ ...u, [fieldKey]: e.target.value }))
           }
-        );
-
-        const categoryArray = response.data.data;
-        setCategories(categoryArray);
-        console.log("Fetched categories:", response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchProfile();
-    fetchCategories();
-  }, []);
+          style={{
+            marginLeft: "8px",
+            padding: "4px 8px",
+            fontSize: "1em",
+          }}
+        />
+      ) : (
+        <span style={{ marginLeft: "8px", fontSize: "1em" }}>{value}</span>
+      )}
+      <FontAwesomeIcon
+        icon={faPen}
+        onClick={() =>
+          setEditingField(editingField === fieldKey ? null : fieldKey)
+        }
+        style={{
+          marginLeft: "10px",
+          cursor: "pointer",
+          color: "white",
+          fontSize: "0.7em",
+        }}
+      />
+    </div>
+  );
 
   return (
     <div
@@ -111,9 +173,8 @@ export default function Profile() {
           className="textColor"
           style={{ fontSize: "2.5em", textAlign: "center" }}
         >
-          {user.name}'s Profile
+          {user.name || "Your"} Profile
         </h1>
-
         <p
           className="textColor"
           style={{ textAlign: "left", fontSize: "1.4em" }}
@@ -128,51 +189,26 @@ export default function Profile() {
         </p>
 
         <div>
-          <p className="textColor" style={{ textAlign: "left" }}>
-            <strong>Email:</strong> {user.email}{" "}
-            <FontAwesomeIcon
-              icon={faPen}
-              style={{
-                marginLeft: "10px",
-                cursor: "pointer",
-                color: "white",
-                fontSize: "0.7em",
-              }}
-            />
+          <p className="textColor">
+            {renderEditable("email", "Email", user.email)}
           </p>
-          <p className="textColor" style={{ textAlign: "left" }}>
-            <strong>Username:</strong> {user.username}{" "}
-            <FontAwesomeIcon
-              icon={faPen}
-              style={{
-                marginLeft: "10px",
-                cursor: "pointer",
-                color: "white",
-                fontSize: "0.7em",
-              }}
-            />
+          <p className="textColor">
+            {renderEditable("username", "Username", user.username)}
           </p>
-          <p className="textColor" style={{ textAlign: "left" }}>
-            <strong>Phone Number:</strong> {user.PhoneNumber}{" "}
-            <FontAwesomeIcon
-              icon={faPen}
-              style={{
-                marginLeft: "10px",
-                cursor: "pointer",
-                color: "white",
-                fontSize: "0.7em",
-              }}
-            />
+          <p className="textColor">
+            {renderEditable("phoneNumber", "Phone Number", user.phoneNumber)}
           </p>
-          <p className="textColor" style={{ textAlign: "left" }}>
-            <strong>Forgotten Password? </strong>{" "}
+
+          <div style={{ marginBottom: "20px" }}>
+            <strong className="textColor">Forgotten Password? </strong>
             <button
               className="SubscribeButton"
               style={{ width: "100px", height: "30px", fontSize: "1em" }}
+              onClick={handlePasswordReset}
             >
               Reset it
             </button>
-          </p>
+          </div>
         </div>
 
         {/* Favorite categories */}
@@ -210,16 +246,12 @@ export default function Profile() {
                     (c) => c.id === category.id
                   )}
                   onChange={(e) => {
-                    const updatedCategories = e.target.checked
+                    const updated = e.target.checked
                       ? [...user.selectedCategories, category]
                       : user.selectedCategories.filter(
                           (c) => c.id !== category.id
                         );
-
-                    setUser((prevUser) => ({
-                      ...prevUser,
-                      selectedCategories: updatedCategories,
-                    }));
+                    setUser((u) => ({ ...u, selectedCategories: updated }));
                   }}
                 />
                 {category.name}
@@ -256,36 +288,7 @@ export default function Profile() {
         >
           <button
             className="SaveButton"
-            onClick={async () => {
-              try {
-                await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
-                  withCredentials: true,
-                });
-
-                // Send only the selected category IDs
-                const categoryIds = user.selectedCategories.map(
-                  (cat) => cat.id
-                );
-
-                const response = await axios.patch(
-                  "http://localhost:8000/api/profile",
-                  {
-                    ...user,
-                    categories: categoryIds,
-                  },
-                  { withCredentials: true }
-                );
-
-                console.log("Profile updated successfully:", response.data);
-                alert("Profile updated successfully!");
-              } catch (error) {
-                console.error(
-                  "Update failed:",
-                  error.response?.data || error.message
-                );
-                alert("Failed to update profile.");
-              }
-            }}
+            onClick={handleSave}
             style={{
               fontSize: "0.8em",
               cursor: "pointer",

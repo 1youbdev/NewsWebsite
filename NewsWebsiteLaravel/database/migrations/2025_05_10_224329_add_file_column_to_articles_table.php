@@ -4,21 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class AddFileColumnToArticlesTable extends Migration
 {
-    public function up(): void
+    /**
+     * Run the migrations to add file column to articles table.
+     *
+     * @return void
+     */
+    public function up()
     {
         Schema::table('articles', function (Blueprint $table) {
-            if (!Schema::hasColumn('articles', 'file')) {
-                $table->string('file')->nullable()->after('image');
-            }
+            $table->string('file')->nullable()->after('image');
         });
     }
 
-    public function down(): void
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
     {
         Schema::table('articles', function (Blueprint $table) {
             $table->dropColumn('file');
         });
     }
-};
+}

@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { sendResetEmail } from "./services/api"; // Import API function
+import axios from "axios"; // You still need axios unless you're using fetch
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -10,21 +9,27 @@ export default function ForgotPassword() {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
-    setLoading(true); // Show loading state
+    setMessage("");
+    setLoading(true);
 
     try {
-      const response = await sendResetEmail(email);
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/forgot-password",
+        {
+          email: email,
+        }
+      );
+
       setMessage(response.data?.message || "Lien envoyé.");
     } catch (error) {
-      console.error("Error response:", error.response?.data); // Log the error
+      console.error("Erreur:", error.response?.data);
 
-      // Display the correct error message from backend
       setMessage(
-        error.response?.data?.error || "Something went wrong. Please try again."
+        error.response?.data?.error ||
+          "Une erreur est survenue. Veuillez réessayer."
       );
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -44,7 +49,7 @@ export default function ForgotPassword() {
           <form className="form" onSubmit={handleForgotPassword}>
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Entrez votre email"
               className="formForCommentInput"
               value={email}
               style={{ width: "250px" }}
@@ -53,27 +58,27 @@ export default function ForgotPassword() {
             />
             <button
               type="submit"
-              className="commentFormHeading "
-              style={{ width: "150px", marginTop: "30px", height: "40px", padding:"10px" }}
+              className="SubscribeButton"
+              style={{
+                width: "150px",
+                marginTop: "30px",
+                height: "40px",
+                padding: "10px",
+              }}
               disabled={loading}
             >
-              {loading ? <p>Processing...</p> : <p>Recevoir le lien</p>}
+              {loading ? "Envoi en cours..." : "Recevoir le lien"}
             </button>
 
-            {message && (
-              <h3
-              className="textColor"
-              >
-                {message}
-              </h3>
-            )}
+            {message && <h3 className="textColor">{message}</h3>}
           </form>
+
           <Link
             to="/login"
             style={{ textDecoration: "none", textAlign: "left" }}
             className="commentFormHeading"
           >
-            Remembered your password? Log in
+            Mot de passe retrouvé ? Se connecter
           </Link>
         </div>
       </div>

@@ -319,6 +319,15 @@ div {
   width: fit-content;
   max-width: 100vw;
 }
+.rtl-support {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl-support .dropdown-menu {
+  right: auto;
+  left: 0;
+}
 .discoverArticles {
   background-color: var(--discover-articles);
   border-radius: 30px;

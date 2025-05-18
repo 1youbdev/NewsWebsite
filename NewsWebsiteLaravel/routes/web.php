@@ -25,3 +25,8 @@ Route::get('/', function () {
 
 //     return 'Test email sent!';
 // });
+Route::get('/password-reset/{token}', function ($token) {
+    $email = request('email');
+    // Redirect to your React frontend route (Vite or production URL)
+    return redirect("http://localhost:5173/password-reset/{$token}?email={$email}");
+})->name('password.reset');

@@ -16,10 +16,13 @@ import Politics from "./Politics.jsx";
 import Sports from "./Sports.jsx";
 import Society from "./Society.jsx";
 import Mena from "./Mena.jsx";
+import ResetPassword from "./ResetPassword.jsx";
 import Add_article from "./Add_article.jsx";
 import AdminDashboard from "./AdminDashboard.jsx";
 import NotificationComponent from "./Notification.jsx";
 import CookieConsent from "./CookieConsent.jsx";
+import ForgotPassword from "./ForgotPassword.jsx";
+// import TranslatedComponent from "./TranslatedComponent.jsx";
 
 function ProtectedRoute({ children, roles }) {
   const { isAuthenticated, user, setRedirectPath, loadingAuth } = useAuth();
@@ -58,10 +61,16 @@ function App() {
           <Route path="/Culture" element={<Culture />} />
           <Route path="/Economy" element={<Economy />} />
           <Route path="/Sports" element={<Sports />} />
-
+          {/* <Route
+            path="/TranslatedComponent"
+            element={<TranslatedComponent />}
+          /> */}
           <Route path="/Home" element={<Section />} />
           <Route path="/login" element={<Login />} />
           <Route path="/Register" element={<Register />} />
+          <Route path="article/:id" element={<Article />} />
+          <Route path="/password-reset/:token" element={<ResetPassword />} />
+          <Route path="/ForgotPassword" element={<ForgotPassword />} />
 
           {/* Protected Routes */}
           <Route

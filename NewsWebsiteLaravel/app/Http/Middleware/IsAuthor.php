@@ -18,6 +18,7 @@ class IsAuthor
         if (auth()->user()->role !== User::ROLE_AUTHOR) {
             abort(403, 'Unauthorized action.');
         }
-    
+
         return $next($request);
     }
+}
