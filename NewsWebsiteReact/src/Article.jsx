@@ -3293,6 +3293,7 @@ export default function Article() {
   const [isLoading, setIsLoading] = useState(true);
   const [article, setArticle] = useState(null);
   const [similarArticles, setSimilarArticles] = useState([]);
+  const [trendingArticles, setTrendingArticles] = useState([]);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -3309,10 +3310,9 @@ export default function Article() {
 
   // Improved image URL handler with random placeholder fallback
   const getImageUrl = (path) => {
-    if (!path)
-      return `https://picsum.photos/id/${Math.floor(
-        Math.random() * 100
-      )}/800/400`;
+    if (!path) {
+      return `https://picsum.photos/id/${Math.floor(Math.random() * 100)}/800/400`;
+    }
     if (path.startsWith("http")) return path;
     return `${instance.defaults.baseURL}${path}`;
   };
@@ -3372,19 +3372,19 @@ export default function Article() {
   // Click outside handler to close dictionary
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dictionaryRef.current &&
-        !dictionaryRef.current.contains(event.target)
-      ) {
+      if (dictionaryRef.current && !dictionaryRef.current.contains(event.target)) {
         setShowDictionary(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    if (showDictionary) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [showDictionary]);
 
   // Fetch synonyms when word is selected
   useEffect(() => {
@@ -3403,20 +3403,29 @@ export default function Article() {
     const fetchArticleData = async () => {
       try {
         setIsLoading(true);
+        setError("");
+        
         const response = await instance.get(`/api/articles/${id}`);
+        
         if (response.data.success) {
           setArticle(response.data.article);
           setSimilarArticles(response.data.similarArticles || []);
+          setTrendingArticles(response.data.trendingArticles || []);
           setComments(response.data.comments || []);
+        } else {
+          setError("Failed to load article");
         }
       } catch (error) {
         console.error("Error fetching article:", error);
+        setError("Error loading article. Please try again.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchArticleData();
+    if (id) {
+      fetchArticleData();
+    }
   }, [id]);
 
   // Handle comment submission
@@ -3445,7 +3454,7 @@ export default function Article() {
       if (response.data.success) {
         // Add the new comment to the comments array
         setComments([response.data.comment, ...comments]);
-        setCommentText(""); // Clear the comment field
+        setCommentText("");
       }
     } catch (error) {
       console.error("Error submitting comment:", error);
@@ -3453,10 +3462,8 @@ export default function Article() {
         setError("You must be logged in to comment");
         setIsLoggedIn(false);
       } else if (error.response?.data?.errors) {
-        setError(
-          Object.values(error.response.data.errors)[0][0] ||
-            "Failed to submit comment"
-        );
+        const errorMessage = Object.values(error.response.data.errors)[0]?.[0] || "Failed to submit comment";
+        setError(errorMessage);
       } else {
         setError("Failed to submit comment. Please try again.");
       }
@@ -3465,485 +3472,516 @@ export default function Article() {
     }
   };
 
-  if (isLoading) {
-    return (
+  // Loading component
+  const LoadingSpinner = () => (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div className="loader"></div>
+    </div>
+  );
+
+  // Error component
+  const ErrorMessage = ({ message }) => (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        flexDirection: "column",
+      }}
+    >
+      <p style={{ color: "red", fontSize: "1.2em", marginBottom: "20px" }}>
+        {message}
+      </p>
+      <Link to="/" style={{ color: "#4285F4", textDecoration: "none" }}>
+        Return to Home
+      </Link>
+    </div>
+  );
+
+  // Dictionary popup component
+  const DictionaryPopup = () => (
+    <div
+      ref={dictionaryRef}
+      className="dictionary-popup"
+      style={{
+        position: "absolute",
+        left: `${dictionaryPosition.x}px`,
+        top: `${dictionaryPosition.y}px`,
+        transform: "translateX(-50%)",
+        backgroundColor: theme === "dark" ? "#333" : "#f9f9f9",
+        color: theme === "dark" ? "#fff" : "#333",
+        padding: "15px",
+        borderRadius: "8px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+        zIndex: 1000,
+        maxWidth: "300px",
+        minWidth: "200px",
+      }}
+    >
       <div
         style={{
           display: "flex",
-          justifyContent: "center",
+          justifyContent: "space-between",
           alignItems: "center",
-          height: "100vh",
+          marginBottom: "10px",
         }}
       >
-        <div className="loader"></div>
+        <h3 style={{ margin: 0 }}>"{selectedWord}"</h3>
+        <button
+          onClick={() => setShowDictionary(false)}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: "18px",
+            cursor: "pointer",
+            color: theme === "dark" ? "#fff" : "#333",
+            padding: "0",
+            width: "20px",
+            height: "20px",
+          }}
+          aria-label="Close dictionary"
+        >
+          ×
+        </button>
       </div>
-    );
+
+      <div>
+        <button
+          onClick={fetchSynonyms}
+          disabled={loadingSynonyms}
+          style={{
+            backgroundColor: loadingSynonyms ? "#cccccc" : "#4285F4",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            padding: "8px 12px",
+            cursor: loadingSynonyms ? "not-allowed" : "pointer",
+            fontSize: "14px",
+            marginBottom: "10px",
+          }}
+        >
+          {loadingSynonyms ? "Loading..." : "Get Synonyms"}
+        </button>
+
+        <div style={{ marginTop: "10px" }}>
+          {synonyms.length > 0 ? (
+            <div>
+              <p style={{ fontWeight: "bold", marginBottom: "5px" }}>
+                Synonyms:
+              </p>
+              <ul style={{ paddingLeft: "20px", margin: "5px 0" }}>
+                {synonyms.map((synonym, index) => (
+                  <li key={index}>{synonym}</li>
+                ))}
+              </ul>
+            </div>
+          ) : !loadingSynonyms ? (
+            <p>No synonyms found</p>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Article card component
+  const ArticleCard = ({ article: cardArticle, isSmall = false }) => (
+    <Link
+      to={`/article/${cardArticle.id}`}
+      style={{ textDecoration: "none" }}
+      onClick={() => window.scrollTo(0, 0)}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isSmall ? "row" : "column",
+          gap: isSmall ? "10px" : "0",
+          marginBottom: "15px",
+          cursor: "pointer",
+        }}
+      >
+        <img
+          style={{
+            boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)",
+            width: isSmall ? "140px" : "250px",
+            height: isSmall ? "70px" : "150px",
+            objectFit: "cover",
+          }}
+          src={getImageUrl(cardArticle.image)}
+          alt={cardArticle.title}
+        />
+        <div>
+          <p
+            style={{
+              color: "white",
+              fontFamily: "Oswald",
+              fontSize: isSmall ? "1.2em" : "1.6em",
+              fontWeight: isSmall ? "normal" : "bold",
+              margin: "5px 0",
+              letterSpacing: "1px",
+            }}
+          >
+            {cardArticle.title}
+          </p>
+          {!isSmall && (
+            <p
+              className="textColor"
+              style={{
+                fontFamily: "Oswald",
+                fontSize: "0.8em",
+                margin: "5px 0",
+                width: "250px",
+              }}
+            >
+              {cardArticle.content && cardArticle.content.length > 150
+                ? `${cardArticle.content.substring(0, 150)}...`
+                : cardArticle.content || ""}
+            </p>
+          )}
+          <p style={{ color: "gray", fontSize: "0.8em", margin: "0" }}>
+            {cardArticle.formattedDate || "Recently"}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+
+  // Main render
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   if (!article) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <p>Article not found</p>
-      </div>
-    );
+    return <ErrorMessage message="Article not found" />;
+  }
+
+  if (error && !article) {
+    return <ErrorMessage message={error} />;
   }
 
   return (
-    <>
-      <div style={{ display: "flex", flexDirection: "row", gap: "100px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-          <div
+    <div style={{ display: "flex", flexDirection: "row", gap: "50px", padding: "20px" }}>
+      {/* Main Content */}
+      <main style={{ flex: 1, maxWidth: "800px" }}>
+        <article
+          style={{
+            margin: "20px 0",
+            borderRadius: "30px",
+            boxShadow: "4px 4px 20px rgba(0,0,0,0.2)",
+            overflow: "hidden",
+          }}
+        >
+          <img
+            src={getImageUrl(article.image)}
             style={{
-              margin: "20px",
-              borderRadius: "30px",
-              boxShadow: "4px 4px 20px black",
-              width: "fit-content",
-              height: "fit-content",
+              width: "100%",
+              height: "400px",
+              objectFit: "cover",
+              display: "block",
             }}
-          >
-            <img
-              src={getImageUrl(article.image)}
-              style={{
-                margin: "10px",
-                width: "800px",
-                height: "400px",
-                objectFit: "cover",
-              }}
-              alt={article.title}
-            />
-            <p
+            alt={article.title}
+          />
+          <div style={{ padding: "20px" }}>
+            <h1
               className="textColor"
               style={{
                 fontFamily: "Oswald",
                 fontSize: "2.6em",
                 fontWeight: "bold",
-                margin: "10px",
+                margin: "0 0 20px 0",
                 letterSpacing: "1px",
               }}
             >
               {article.title}
-            </p>
+            </h1>
+            <div className="article-metadata" style={{ marginBottom: "20px" }}>
+              <span className="textColor" style={{ fontSize: "0.9em", color: "gray" }}>
+                By {article.author} • {article.formattedDate}
+                {article.categoryName && ` • ${article.categoryName}`}
+              </span>
+            </div>
             <div
               className="textColor article-content"
               style={{
                 fontFamily: "Oswald",
-                fontSize: "1em",
-                width: "800px",
-                margin: "10px",
+                fontSize: "1.1em",
+                lineHeight: "1.6",
+                userSelect: "text",
               }}
               onMouseUp={handleTextSelect}
-            >
-              {article.content}
-            </div>
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
           </div>
+        </article>
 
-          {/* Dictionary popup */}
-          {showDictionary && (
+        {/* Dictionary popup */}
+        {showDictionary && <DictionaryPopup />}
+
+        {/* Comments Section */}
+        <section
+          style={{
+            padding: "20px",
+            borderRadius: "25px",
+            marginTop: "30px",
+          }}
+          className="commentdiv"
+        >
+          <h2
+            style={{
+              fontSize: "1.8em",
+              fontWeight: "400",
+              color: "black",
+              marginBottom: "20px",
+            }}
+          >
+            Comments ({comments.length})
+          </h2>
+
+          {error && (
             <div
-              ref={dictionaryRef}
-              className="dictionary-popup"
               style={{
-                position: "absolute",
-                left: `${dictionaryPosition.x}px`,
-                top: `${dictionaryPosition.y}px`,
-                transform: "translateX(-50%)",
-                backgroundColor: theme === "dark" ? "#333" : "#f9f9f9",
-                color: theme === "dark" ? "#fff" : "#333",
-                padding: "15px",
-                borderRadius: "8px",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-                zIndex: 1000,
-                maxWidth: "300px",
-                minWidth: "200px",
+                color: "red",
+                margin: "10px 0",
+                padding: "10px",
+                backgroundColor: "#ffebee",
+                borderRadius: "5px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "10px",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>"{selectedWord}"</h3>
-                <button
-                  onClick={() => setShowDictionary(false)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    fontSize: "16px",
-                    cursor: "pointer",
-                    color: theme === "dark" ? "#fff" : "#333",
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-
-              <div>
-                <button
-                  onClick={fetchSynonyms}
-                  style={{
-                    backgroundColor: "#4285F4",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    padding: "8px 12px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    marginBottom: "10px",
-                  }}
-                >
-                  Get Synonyms
-                </button>
-
-                <div style={{ marginTop: "10px" }}>
-                  {loadingSynonyms ? (
-                    <p>Loading synonyms...</p>
-                  ) : synonyms.length > 0 ? (
-                    <div>
-                      <p style={{ fontWeight: "bold", marginBottom: "5px" }}>
-                        Synonyms:
-                      </p>
-                      <ul style={{ paddingLeft: "20px", margin: "5px 0" }}>
-                        {synonyms.map((synonym, index) => (
-                          <li key={index}>{synonym}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : (
-                    <p>No synonyms found</p>
-                  )}
-                </div>
-              </div>
+              {error}
             </div>
           )}
 
-          <div
-            style={{
-              width: "600px",
-              margin: "20px",
-              padding: "20px",
-              borderRadius: "25px",
-            }}
-            className="commentdiv"
-          >
-            <div className="textColor">
-              <label
-                htmlFor=""
-                style={{ fontSize: "1.5em", fontWeight: "300", color: "black" }}
+          {/* Comment Form */}
+          {isLoggedIn ? (
+            <form onSubmit={handleCommentSubmit} style={{ marginBottom: "30px" }}>
+              <textarea
+                name="comment"
+                id="comment"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Write your comment here..."
+                style={{
+                  resize: "vertical",
+                  borderRadius: "10px",
+                  width: "100%",
+                  minHeight: "120px",
+                  padding: "15px",
+                  fontFamily: "inherit",
+                  border: "1px solid #ddd",
+                  fontSize: "14px",
+                  boxSizing: "border-box",
+                }}
+                maxLength={1000}
+              />
+              <div style={{ marginTop: "10px", textAlign: "right" }}>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !commentText.trim()}
+                  className="SubscribeButton"
+                  style={{
+                    opacity: isSubmitting || !commentText.trim() ? "0.7" : "1",
+                    cursor: isSubmitting || !commentText.trim() ? "not-allowed" : "pointer",
+                    padding: "10px 20px",
+                  }}
+                >
+                  {isSubmitting ? "Posting..." : "Add Comment"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div style={{ textAlign: "center", marginBottom: "30px" }}>
+              <p style={{ color: "gray", marginBottom: "10px" }}>
+                You need to log in to comment
+              </p>
+              <Link
+                style={{
+                  textDecoration: "none",
+                  backgroundColor: "#4285F4",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  display: "inline-block",
+                }}
+                to="/login"
               >
-                Comments
-              </label>
-              {comments.length > 0 ? (
-                comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      marginBottom: "15px",
-                      borderBottom: "1px solid #eee",
-                      paddingBottom: "10px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "5px",
-                      }}
-                    >
-                      <p style={{ color: "black", fontWeight: "500" }}>
-                        {comment.user || "Anonymous"}
-                      </p>
-                      <img
-                        src={user}
-                        style={{
-                          width: "25px",
-                          height: "25px",
-                          marginTop: "15px",
-                        }}
-                        alt="User"
-                      />
-                    </span>
-                    <p style={{ marginTop: "5px" }}>{comment.text}</p>
-                  </div>
-                ))
-              ) : (
-                <p style={{ color: "gray", marginTop: "10px" }}>
-                  No comments yet. Be the first to comment!
-                </p>
-              )}
-              <br />
-
-              {error && (
-                <div style={{ color: "red", margin: "10px 0" }}>{error}</div>
-              )}
-
-              {isLoggedIn ? (
-                <form onSubmit={handleCommentSubmit}>
-                  <textarea
-                    name="comment"
-                    id="comment"
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Write your comment here..."
-                    style={{
-                      resize: "none",
-                      borderRadius: "10px",
-                      width: "600px",
-                      height: "200px",
-                      padding: "10px",
-                      fontFamily: "inherit",
-                    }}
-                  ></textarea>
-                  <br />
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !commentText.trim()}
-                    className="SubscribeButton"
-                    style={{width:"fit-content", float:"right",opacity:isSubmitting ? "0.7" : "1"}}
-       
-                  >
-                    {isSubmitting ? (
-                      <p >Posting...</p>
-                    ) : (
-                      <p>Add Comment</p>
-                    )}
-                  </button>
-                </form>
-              ) : (
-                <div style={{ textAlign: "center", marginTop: "10px" }}>
-                  <p style={{ color: "gray", marginBottom: "10px" }}>
-                    You need to log in to comment
-                  </p>
-                  <Link
-                    style={{
-                      textDecoration: "none",
-                      backgroundColor: "#4285F4",
-                      color: "white",
-                      padding: "10px 20px",
-                      borderRadius: "5px",
-                      fontWeight: "bold",
-                    }}
-                    to="/login"
-                  >
-                    Log In to Comment
-                  </Link>
-                </div>
-              )}
+                Log In to Comment
+              </Link>
             </div>
-          </div>
-        </div>
+          )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          <div className="TrendingArticles">
-            <p
+          {/* Comments List */}
+          <div className="comments-list">
+            {comments.length > 0 ? (
+              comments.map((comment, index) => (
+                <div
+                  key={comment.id || index}
+                  style={{
+                    marginBottom: "20px",
+                    borderBottom: "1px solid #eee",
+                    paddingBottom: "15px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <img
+                      src={user}
+                      style={{
+                        width: "25px",
+                        height: "25px",
+                        borderRadius: "50%",
+                      }}
+                      alt="User avatar"
+                    />
+                    <span style={{ color: "black", fontWeight: "500" }}>
+                      {comment.user || "Anonymous"}
+                    </span>
+                    <span style={{ color: "#888", fontSize: "0.85em" }}>
+                      {comment.formattedDate || "Recently"}
+                    </span>
+                  </div>
+                  <p style={{ margin: "0", lineHeight: "1.5", color: "#333" }}>
+                    {comment.text || comment.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: "gray", fontStyle: "italic" }}>
+                No comments yet. Be the first to comment!
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {/* Sidebar */}
+      <aside style={{ width: "300px", display: "flex", flexDirection: "column", gap: "30px" }}>
+        {/* Trending Articles */}
+        {trendingArticles.length > 0 && (
+          <section className="TrendingArticles">
+            <h2
               style={{
                 fontFamily: "Oswald",
                 fontSize: "1.8em",
-                fontWeight: "100",
-                margin: "0",
+                fontWeight: "400",
+                margin: "0 0 20px 0",
                 letterSpacing: "1px",
                 color: "white",
               }}
             >
               Trending Articles
-            </p>
-            {similarArticles.slice(0, 4).map((article) => (
-              <Link
-                to={`/article/${article.id}`}
-                key={article.id}
-                style={{ textDecoration: "none" }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "10px",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <img
-                    style={{
-                      boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)",
-                      width: "140px",
-                      height: "70px",
-                    }}
-                    src={getImageUrl(article.image)}
-                    alt={article.title}
-                  />
-                  <div>
-                    <p
-                      style={{
-                        color: "white",
-                        fontFamily: "Oswald",
-                        fontSize: "1.5em",
-                        margin: "0",
-                      }}
-                    >
-                      {article.title}
-                    </p>
-                    <p
-                      style={{ color: "gray", fontSize: "0.8em", margin: "0" }}
-                    >
-                      {article.formattedDate || "Recently"}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+            </h2>
+            {trendingArticles.slice(0, 4).map((trendingArticle) => (
+              <ArticleCard key={trendingArticle.id} article={trendingArticle} isSmall={true} />
             ))}
-          </div>
+          </section>
+        )}
 
-          <div className="Register">
-            <p
-              style={{
-                fontFamily: "Oswald",
-                fontSize: "2.6em",
-                fontWeight: "200",
-                margin: "0",
-                letterSpacing: "1px",
-                color: "white",
-              }}
-            >
-              Newsletter
-            </p>
-            <p
-              style={{
-                fontFamily: "Oswald",
-                fontSize: "1.1em",
-                fontWeight: "100",
-                margin: "0",
-                letterSpacing: "1px",
-                color: "white",
-              }}
-            >
-              Stay informed
-            </p>
-            <input
-              type="email"
-              placeholder="Put your Email here..."
-              className="RegisterInput"
-            />
-            <button className="RegisterButton">Subscribe</button>
-          </div>
+        {/* Newsletter */}
+        <section className="Register">
+          <h2
+            style={{
+              fontFamily: "Oswald",
+              fontSize: "2.2em",
+              fontWeight: "300",
+              margin: "0 0 10px 0",
+              letterSpacing: "1px",
+              color: "white",
+            }}
+          >
+            Newsletter
+          </h2>
+          <p
+            style={{
+              fontFamily: "Oswald",
+              fontSize: "1.1em",
+              fontWeight: "100",
+              margin: "0 0 20px 0",
+              letterSpacing: "1px",
+              color: "white",
+            }}
+          >
+            Stay informed with our latest articles
+          </p>
+          <input
+            type="email"
+            placeholder="Enter your email..."
+            className="RegisterInput"
+            style={{ marginBottom: "10px" }}
+          />
+          <button className="RegisterButton">Subscribe</button>
+        </section>
 
-          <div className="SimilarArticles">
-            <p
+        {/* Similar Articles */}
+        {similarArticles.length > 0 && (
+          <section className="SimilarArticles">
+            <h2
               style={{
                 fontFamily: "Oswald",
                 fontSize: "1.8em",
-                fontWeight: "100",
-                margin: "0",
+                fontWeight: "400",
+                margin: "0 0 20px 0",
                 letterSpacing: "1px",
                 color: "white",
               }}
             >
               Similar Articles
-            </p>
-            {similarArticles.slice(0, 6).map((article) => (
-              <Link
-                to={`/article/${article.id}`}
-                key={article.id}
-                style={{ textDecoration: "none" }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "10px",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <img
-                    style={{
-                      boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.6)",
-                      width: "140px",
-                      height: "70px",
-                    }}
-                    src={getImageUrl(article.image)}
-                    alt={article.title}
-                  />
-                  <div>
-                    <p
-                      style={{
-                        color: "white",
-                        fontFamily: "Oswald",
-                        fontSize: "1.5em",
-                        margin: "0",
-                      }}
-                    >
-                      {article.title}
-                    </p>
-                    <p
-                      style={{ color: "gray", fontSize: "0.8em", margin: "0" }}
-                    >
-                      {article.formattedDate || "Recently"}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+            </h2>
+            {similarArticles.slice(0, 6).map((similarArticle) => (
+              <ArticleCard key={similarArticle.id} article={similarArticle} isSmall={true} />
             ))}
-          </div>
+          </section>
+        )}
 
-          <div
-            className="discoverArticles"
-            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
-          >
-            <center>
-              <h1 className="textColor">Discover more</h1>
-            </center>
-            {similarArticles.slice(0, 2).map((article) => (
-              <div className="multiplearticles" key={article.id}>
-                <img
-                  src={getImageUrl(article.image)}
-                  style={{ width: "250px", height: "150px" }}
-                  alt={article.title}
-                />
-                <p
-                  className="textColor"
-                  style={{
-                    fontFamily: "Oswald",
-                    fontSize: "1.6em",
-                    fontWeight: "bold",
-                    margin: "0",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  {article.title}
-                </p>
-                <p
-                  className="textColor"
-                  style={{
-                    fontFamily: "Oswald",
-                    fontSize: "0.8em",
-                    margin: "0",
-                    width: "250px",
-                  }}
-                >
-                  {article.content.length > 150
-                    ? `${article.content.substring(0, 150)}...`
-                    : article.content}
-                </p>
+        {/* Discover More */}
+        {similarArticles.length > 0 && (
+          <section className="discoverArticles">
+            <h2
+              className="textColor"
+              style={{
+                textAlign: "center",
+                marginBottom: "20px",
+                fontSize: "1.8em",
+              }}
+            >
+              Discover More
+            </h2>
+            {similarArticles.slice(0, 2).map((discoverArticle) => (
+              <div className="multiplearticles" key={discoverArticle.id} style={{ marginBottom: "20px" }}>
+                <ArticleCard article={discoverArticle} />
                 <Link
-                  to={`/article/${article.id}`}
+                  to={`/article/${discoverArticle.id}`}
                   className="readmore"
-                  style={{ textDecoration: "none" }}
+                  style={{
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    marginTop: "10px",
+                  }}
+                  onClick={() => window.scrollTo(0, 0)}
                 >
-                  <p>Read more</p>
-                  <img src={Arrow} className="readmorearrow" alt="Read more" />
+                  <span>Read more</span>
+                  <img src={Arrow} className="readmorearrow" alt="Arrow" style={{ width: "16px" }} />
                 </Link>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-    </>
+          </section>
+        )}
+      </aside>
+    </div>
   );
 }

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import instance from "./axios";
 import ArrowBlack from "./right-arrow.png";
 import ArrowWhite from "./right-arroww.png";
-import {useAuth} from "./AuthContext";
 
 export default function Section() {
   const [loading, setLoading] = useState(true);
@@ -11,21 +10,15 @@ export default function Section() {
   const [sectionData, setSectionData] = useState({
     latestArticle: null,
     featuredArticles: [],
-    categorizedArticles: [],
+    categorizedArticles: []
   });
-  const {user} = useAuth();
   const [theme, setTheme] = useState("dark");
   const navigate = useNavigate();
-  const handleSubscriptionToggle = () => {
-    return alert("Hi");
-  };
+
   // Add this image URL handler function - similar to Article.jsx
   const getImageUrl = (path) => {
-    if (!path)
-      return `https://picsum.photos/id/${Math.floor(
-        Math.random() * 100
-      )}/500/300`;
-    if (path.startsWith("http")) return path;
+    if (!path) return `https://picsum.photos/id/${Math.floor(Math.random() * 100)}/500/300`;
+    if (path.startsWith('http')) return path;
     return `${instance.defaults.baseURL}${path}`;
   };
 
@@ -78,6 +71,7 @@ export default function Section() {
   }
 
   const goToArticle = (articleId) => {
+    console.log("Navigating to article:", articleId); // Debug log
     navigate(`/article/${articleId}`);
   };
 
@@ -91,7 +85,7 @@ export default function Section() {
           width: "100%",
           maxWidth: "100vw",
           marginTop: "20px",
-          padding: "0 15px",
+          padding: "0 15px"
         }}
       >
         <div
@@ -113,24 +107,24 @@ export default function Section() {
               padding: "3px",
               margin: "0px",
               width: "100%",
-              height: "100%", // Ensuring full height
+              height: "100%",
             }}
           >
             {sectionData.latestArticle && (
-              <div
+              <div 
                 className="Laune"
                 style={{
-                  height: "100%", // Make it full height
+                  height: "100%",
                   display: "flex",
-                  flexDirection: "column",
+                  flexDirection: "column"
                 }}
               >
-                <img
-                  src={getImageUrl(sectionData.latestArticle.image)}
-                  style={{
-                    width: "100%",
-                    height: "400px", // Taller image to fill space
-                    objectFit: "cover",
+                <img 
+                  src={getImageUrl(sectionData.latestArticle.image)} 
+                  style={{ 
+                    width: "100%", 
+                    height: "400px",
+                    objectFit: "cover" 
                   }}
                   alt={sectionData.latestArticle.title}
                 />
@@ -153,35 +147,33 @@ export default function Section() {
                     fontSize: "1em",
                     margin: "0",
                     width: "100%",
-                    flex: "1", // Takes remaining space
+                    flex: "1",
                   }}
                 >
-                  {sectionData.latestArticle.content.length > 500
-                    ? `${sectionData.latestArticle.content.substring(
-                        0,
-                        500
-                      )}...`
+                  {sectionData.latestArticle.content.length > 500 
+                    ? `${sectionData.latestArticle.content.substring(0, 500)}...`
                     : sectionData.latestArticle.content}
                 </p>
-                <span
+                <button 
                   className="readmore"
                   onClick={() => goToArticle(sectionData.latestArticle.id)}
-                  style={{
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
+                  style={{ 
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer", 
+                    display: "flex", 
+                    alignItems: "center", 
                     marginTop: "auto",
+                    padding: "10px 0"
                   }}
                 >
-                  <p className="textColor" style={{ marginRight: "5px" }}>
-                    Read more
-                  </p>
+                  <p className="textColor" style={{ marginRight: "5px", margin: "0" }}>Read more</p>
                   <img
                     src={theme === "dark" ? ArrowWhite : ArrowBlack}
                     className="readmorearrow"
                     alt="Arrow"
                   />
-                </span>
+                </button>
               </div>
             )}
           </div>
@@ -191,7 +183,7 @@ export default function Section() {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "20px", // Reduced gap between the two right columns
+              gap: "20px",
               width: "100%",
             }}
           >
@@ -205,22 +197,18 @@ export default function Section() {
             >
               {sectionData.featuredArticles &&
                 sectionData.featuredArticles.slice(0, 1).map((article) => (
-                  <div
-                    key={article.id}
+                  <div 
+                    key={article.id} 
                     className="multiplearticles"
                     style={{
-                      height: "300px", // Fixed height for the top right article
+                      height: "300px",
                       display: "flex",
-                      flexDirection: "column",
+                      flexDirection: "column"
                     }}
                   >
-                    <img
-                      src={getImageUrl(article.image)}
-                      style={{
-                        width: "100%",
-                        height: "150px",
-                        objectFit: "cover",
-                      }}
+                    <img 
+                      src={getImageUrl(article.image)} 
+                      style={{ width: "100%", height: "150px", objectFit: "cover" }}
                       alt={article.title}
                     />
                     <p
@@ -242,32 +230,33 @@ export default function Section() {
                         fontSize: "0.8em",
                         margin: "0",
                         width: "100%",
-                        flex: "1", // Takes remaining space
+                        flex: "1",
                       }}
                     >
-                      {article.content.length > 150
+                      {article.content.length > 150 
                         ? `${article.content.substring(0, 150)}...`
                         : article.content}
                     </p>
-                    <span
+                    <button 
                       className="readmore"
                       onClick={() => goToArticle(article.id)}
-                      style={{
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
+                      style={{ 
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer", 
+                        display: "flex", 
+                        alignItems: "center", 
                         marginTop: "auto",
+                        padding: "10px 0"
                       }}
                     >
-                      <p className="textColor" style={{ marginRight: "5px" }}>
-                        Read more
-                      </p>
+                      <p className="textColor" style={{ marginRight: "5px", margin: "0" }}>Read more</p>
                       <img
                         src={theme === "dark" ? ArrowWhite : ArrowBlack}
                         className="readmorearrow"
                         alt="Arrow"
                       />
-                    </span>
+                    </button>
                   </div>
                 ))}
             </div>
@@ -282,22 +271,18 @@ export default function Section() {
             >
               {sectionData.featuredArticles &&
                 sectionData.featuredArticles.slice(1, 2).map((article) => (
-                  <div
-                    key={article.id}
+                  <div 
+                    key={article.id} 
                     className="multiplearticles"
                     style={{
-                      height: "300px", // Fixed height for the bottom right article
+                      height: "300px",
                       display: "flex",
-                      flexDirection: "column",
+                      flexDirection: "column"
                     }}
                   >
-                    <img
-                      src={getImageUrl(article.image)}
-                      style={{
-                        width: "100%",
-                        height: "150px",
-                        objectFit: "cover",
-                      }}
+                    <img 
+                      src={getImageUrl(article.image)} 
+                      style={{ width: "100%", height: "150px", objectFit: "cover" }}
                       alt={article.title}
                     />
                     <p
@@ -319,32 +304,33 @@ export default function Section() {
                         fontSize: "0.8em",
                         margin: "0",
                         width: "100%",
-                        flex: "1", // Takes remaining space
+                        flex: "1",
                       }}
                     >
-                      {article.content.length > 150
+                      {article.content.length > 150 
                         ? `${article.content.substring(0, 150)}...`
                         : article.content}
                     </p>
-                    <span
+                    <button 
                       className="readmore"
                       onClick={() => goToArticle(article.id)}
-                      style={{
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
+                      style={{ 
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer", 
+                        display: "flex", 
+                        alignItems: "center", 
                         marginTop: "auto",
+                        padding: "10px 0"
                       }}
                     >
-                      <p className="textColor" style={{ marginRight: "5px" }}>
-                        Read more
-                      </p>
+                      <p className="textColor" style={{ marginRight: "5px", margin: "0" }}>Read more</p>
                       <img
                         src={theme === "dark" ? ArrowWhite : ArrowBlack}
                         className="readmorearrow"
                         alt="Arrow"
                       />
-                    </span>
+                    </button>
                   </div>
                 ))}
             </div>
@@ -359,9 +345,7 @@ export default function Section() {
               height: "fit-content",
             }}
           >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "50px" }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: "50px" }}>
               <div className="multiplearticles">
                 <p
                   className="textColor"
@@ -380,30 +364,27 @@ export default function Section() {
                   sectionData.featuredArticles.slice(0, 8).map((article) => (
                     <div
                       key={article.id}
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "10px",
-                        marginBottom: "10px",
-                      }}
+                      style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "10px" }}
                     >
-                      <span
+                      <button
                         className="textColor"
+                        onClick={() => goToArticle(article.id)}
                         style={{
+                          background: "none",
+                          border: "none",
                           cursor: "pointer",
                           fontSize: "0.85em",
                           fontWeight: "400",
                           display: "flex",
                           gap: "10px",
                           alignItems: "center",
+                          textAlign: "left",
+                          padding: "5px 0"
                         }}
-                        onClick={() => goToArticle(article.id)}
                       >
-                        <p className="colorofnavbar" style={{ margin: "0" }}>
-                          {article.formattedDate}
-                        </p>
+                        <p className="colorofnavbar" style={{ margin: "0" }}>{article.formattedDate}</p>
                         <span>{article.title}</span>
-                      </span>
+                      </button>
                     </div>
                   ))}
               </div>
@@ -441,20 +422,14 @@ export default function Section() {
                 >
                   Stay informed
                 </p>
-                <div>
-                  <p className="textColor">
-                    <button
-                      className="RegisterButton"
-                      style={{ width: "250px", height: "40px" }}
-                      onClick={handleSubscriptionToggle}
-                      disabled={user?.subscribed}
-                    >
-                      {user?.subscribed
-                        ? "Already subscribed!"
-                        : "Subscribe to our newsletter !"}
-                    </button>
-                  </p>
-                </div>
+                <Link to="/login">
+                  <button
+                    className="RegisterButton"
+                    style={{ width: "250px", height: "40px" }}
+                  >
+                    Subscribe
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -464,22 +439,15 @@ export default function Section() {
         <div>
           {sectionData.categorizedArticles &&
             sectionData.categorizedArticles.map((categoryGroup) => (
-              <div
-                key={categoryGroup.categoryId}
-                style={{ marginBottom: "40px" }}
-              >
-                <Link
-                  to={`/categories/${categoryGroup.categoryId}`}
-                  className="textColor"
-                  style={{ textDecoration: "none" }}
-                >
-                  <h1
+              <div key={categoryGroup.categoryId} style={{ marginBottom: "40px" }}>
+                <Link to={`/categories/${categoryGroup.categoryId}`} className="textColor" style={{ textDecoration: "none" }}>
+                  <h1 
                     className="categories"
                     style={{
                       fontFamily: "Oswald",
                       fontSize: "2em",
                       marginBottom: "20px",
-                      color: "inherit",
+                      color: "inherit"
                     }}
                   >
                     {categoryGroup.category}
@@ -494,23 +462,19 @@ export default function Section() {
                   }}
                 >
                   {categoryGroup.articles.map((article) => (
-                    <div
-                      key={article.id}
+                    <div 
+                      key={article.id} 
                       className="multiplearticles"
                       style={{
                         width: "250px",
                         display: "flex",
                         flexDirection: "column",
-                        gap: "10px",
+                        gap: "10px"
                       }}
                     >
-                      <img
-                        src={getImageUrl(article.image)}
-                        style={{
-                          width: "100%",
-                          height: "150px",
-                          objectFit: "cover",
-                        }}
+                      <img 
+                        src={getImageUrl(article.image)} 
+                        style={{ width: "100%", height: "150px", objectFit: "cover" }}
                         alt={article.title}
                       />
                       <p
@@ -522,7 +486,7 @@ export default function Section() {
                           margin: "0",
                           letterSpacing: "1px",
                           height: "60px",
-                          overflow: "hidden",
+                          overflow: "hidden"
                         }}
                       >
                         {article.title}
@@ -535,35 +499,33 @@ export default function Section() {
                           margin: "0",
                           width: "100%",
                           height: "60px",
-                          overflow: "hidden",
+                          overflow: "hidden"
                         }}
                       >
-                        {article.content.length > 150
+                        {article.content.length > 150 
                           ? `${article.content.substring(0, 150)}...`
                           : article.content}
                       </p>
-                      <span
+                      <button 
                         className="readmore"
                         onClick={() => goToArticle(article.id)}
-                        style={{
+                        style={{ 
+                          background: "none",
+                          border: "none",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
                           marginTop: "10px",
+                          padding: "10px 0"
                         }}
                       >
-                        <p
-                          className="textColor"
-                          style={{ marginRight: "10px" }}
-                        >
-                          Read more
-                        </p>
+                        <p className="textColor" style={{ marginRight: "10px", margin: "0" }}>Read more</p>
                         <img
                           src={theme === "dark" ? ArrowWhite : ArrowBlack}
                           className="readmorearrow"
                           alt="Arrow"
                         />
-                      </span>
+                      </button>
                     </div>
                   ))}
                 </div>

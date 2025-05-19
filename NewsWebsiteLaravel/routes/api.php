@@ -1,25 +1,19 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr; 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DictionaryController;
-use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Article;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Str;
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\URL;
@@ -102,66 +96,30 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
         ]
     ]);
 });
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $user = $request->user();
-
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'username' => $user->username,
-            'phone' => $user->phoneNumber,
-            'subscribed' => $user->subscribed, // Ensure this field exists in your User model
-        ],
-    ]);
-});
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::middleware('auth:sanctum')->post('/password/reset-link', [AuthController::class, 'sendResetLinkToAuthenticatedUser']);
-Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
-    $user = $request->user()->load('categories'); // eager load categories relation
-
-    return response()->json([
-        'user' => [
-            'name' => $user->name,
-            'email' => $user->email,
-            'username' => $user->username,
-            'phoneNumber' => $user->phoneNumber,
-            'subscribed' => $user->subscribed,
-            'categories' => $user->categories, // send full category objects
-        ]
-    ]);
-});
 
 Route::middleware('auth:sanctum')->patch('/profile', function (Request $request) {
     $user = $request->user();
 
+    // Validate incoming request data (e.g., name, email, etc.)
     $validated = $request->validate([
-        'name'         => 'sometimes|string|max:255',
-        'email'        => 'sometimes|email|max:255|unique:users,email,' . $user->id,
-        'username'     => 'sometimes|string|max:255|unique:users,username,' . $user->id,
-        'phoneNumber'  => 'sometimes|string|max:20',
-        'categories'   => 'sometimes|array',
-        'categories.*' => 'integer|exists:categories,id',
+        'name' => 'sometimes|string|max:255',
+        'email' => 'sometimes|email|max:255|unique:users,email,' . $user->id,
+        'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
+        'phone' => 'sometimes|string|max:20',
     ]);
 
-    // 1) Update only the user columns:
-    $userData = Arr::except($validated, ['categories']);
-    $user->update($userData);
-
-    // 2) If category ids were sent, sync the pivot:
-    if (array_key_exists('categories', $validated)) {
-        $user->categories()->sync($validated['categories']);
-    }
-
-    // Reload relations so the frontend can see them
-    $user->load('categories');
+    // Update user's details
+    $user->update($validated);
 
     return response()->json([
         'success' => true,
         'message' => 'Profile updated successfully',
-        'user'    => $user,
+        'user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'phone' => $user->phoneNumber,
+        ]
     ]);
 });
 
@@ -194,7 +152,3 @@ Route::get('/search', [App\Http\Controllers\SearchController::class, 'search']);
 Route::prefix('dictionary')->group(function () {
     Route::get('/synonyms', [DictionaryController::class, 'getSynonyms']);
 });
-Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-Route::post('/translate', [TranslationController::class, 'translate']);
-Route::get('/layout-config/{language}', [TranslationController::class, 'getLayoutConfig']);

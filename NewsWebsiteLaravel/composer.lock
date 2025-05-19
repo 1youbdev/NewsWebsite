@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c36ced6c45fb34d8c771e638c04bb09",
+    "content-hash": "f9b942ea7401b663c653a1fb0573e57a",
     "packages": [
         {
             "name": "brick/math",
@@ -773,26 +773,29 @@
         },
         {
             "name": "google/cloud-translate",
-            "version": "v1.12.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-translate.git",
-                "reference": "b753ccca21b33acc4f1c6024a10bfc8b247c520f"
+                "reference": "13aa117f643cf837e9df42d59ff0dc65ddc7a05c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-translate/zipball/b753ccca21b33acc4f1c6024a10bfc8b247c520f",
-                "reference": "b753ccca21b33acc4f1c6024a10bfc8b247c520f",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-translate/zipball/13aa117f643cf837e9df42d59ff0dc65ddc7a05c",
+                "reference": "13aa117f643cf837e9df42d59ff0dc65ddc7a05c",
                 "shasum": ""
             },
             "require": {
-                "google/cloud-core": "^1.39",
-                "google/gax": "^1.1"
+                "google/cloud-core": "^1.57",
+                "google/gax": "^1.36.0",
+                "php": "^8.0"
             },
             "require-dev": {
                 "erusev/parsedown": "^1.6",
-                "phpdocumentor/reflection": "^3.0",
-                "phpunit/phpunit": "^4.8|^5.0",
+                "phpdocumentor/reflection": "^5.3.3||^6.0",
+                "phpdocumentor/reflection-docblock": "^5.3",
+                "phpspec/prophecy-phpunit": "^2.0",
+                "phpunit/phpunit": "^9.0",
                 "squizlabs/php_codesniffer": "2.*"
             },
             "suggest": {
@@ -820,9 +823,9 @@
             ],
             "description": "Cloud Translation Client for PHP",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-translate/tree/v1.12.0"
+                "source": "https://github.com/googleapis/google-cloud-php-translate/tree/v2.0.0"
             },
-            "time": "2021-10-12T23:14:12+00:00"
+            "time": "2025-02-08T00:05:17+00:00"
         },
         {
             "name": "google/common-protos",
